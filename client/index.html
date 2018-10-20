@@ -1,36 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html ng-app="seaLord">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>SeaLord</title>
     <link rel="stylesheet" href="">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
-    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.5/angular.min.js"></script>
 </head>
 <body>
-    <h1>Hello, Captain</h1>
+    <div class="container" ng-controller="basicController">
+        <div class="row justify-content-md-center"ng-show="!fightStarted">
+                <div class="col-md-6">
+                    <h1>Welcome to the SeaLord</h1>
     
-    <form>
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <input class="mdl-textfield__input" type="text" name="username" id="username">
-            <label class="mdl-textfield__label" for="username">What is your name, captain?</label>
+                    <form id="main-form" class="form" >
+                        <div class="form-group">
+                            <label for="username">What is your name, captain?</label>
+                            <input type="text" class="form-control" id="username"
+                                placeholder="Henry Morgan" ng-model="username">
+                        </div>
+                        <div class="form-group">
+                            <label for="shiptype">What ship do you want?</label>
+                            <select class="form-control" id="shiptype" ng-model="shiptype">
+                                <option value="1">Gallera</option>
+                                <option value="2">Fregat</option>
+                                <option value="3">Linkor</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <button type="submit" id="start" class="btn btn-primary" 
+                                ng-click="start()" ng-disabled="!allowFight()">FIGHT!</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+    
+        <div class="row justify-content-md-center" ng-show="fightStarted">
+            <div class="col-md-6">
+            <h3>Kill your enemies</h1>
+            <div>
+                <button ng-click="fightStarted = false">STOP</button>
+            </div>
+            </div>
         </div>
-        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-            <label class="mdl-textfield__label" for="shiptype">What is your name, captain?</label>
-            <select name="shiptype" id="shiptype">
-                <option value="1">Type1</option>
-                <option value="2">Type2</option>
-                <option value="3">Type3</option>
-            </select>
-        </div>
-        <div>
-        <button class="mdl-button mdl-js-button mdl-button--raised">
-          FIGHT!
-        </button>
-        </div>
-    </form>
+    </div></div>
+    
+    
+    <div>
+        <p id="instr"></p>
+        <button id="start-record-btn">Start</button>
+        <button id="stop-record-btn">Stop</button>
+    </div>
     
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
     <script type="text/javascript" src="actions.js"></script>

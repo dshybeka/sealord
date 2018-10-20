@@ -52,13 +52,13 @@ var GAME =
 		}
 		
 		var delay = 1500;
-		this.loader.onProgress = function( item, loaded, total ) {
+		this.g_loader.onProgress = function( item, loaded, total ) {
 			log( 'Loaded ' + loaded + '/' + total + ':' + item, 'info', delay );
 		};
-		this.loader.onLoad = function () {
+		this.g_loader.onLoad = function () {
 			log( 'Loaded.', 'success', delay );
 		};
-		this.loader.onError = function () {
+		this.g_loader.onError = function () {
 			log( 'Loading error.', 'error', delay );
 		};
 		
@@ -74,7 +74,7 @@ var GAME =
 
 		var loader = new THREE.OBJMTLLoader( this.g_loader );
 		this.g_blackPearl = null;
-		loader.load( '../thrird-party/models/BlackPearl/BlackPearl.obj', '../thrird-party/models/BlackPearl/BlackPearl.mtl', function ( object ) {
+		loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl.mtl', function ( object ) {
 			object.position.y = 20.0;
 			if( object.children ) {
 				for( child in object.children ) {
