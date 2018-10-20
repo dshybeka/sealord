@@ -8,3 +8,11 @@ and (orientation: landscape) {
         background-color: lightblue;
     }
 }
+
+body.mobile-body {
+    color: #ffd900;
+    background: red;
+    height: 100%;
+    margin: 0;
+    width: 100%;
+}
