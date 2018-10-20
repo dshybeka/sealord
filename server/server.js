@@ -11,12 +11,12 @@ app.use('/public', express.static(__dirname + '/public'));
 app.use('/shared', express.static(__dirname + '/shared'));
 
 // Routing
-app.get('/', function(request, response) {
+app.get('/', function (request, response) {
     response.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Starts the server
-server.listen(8050, function() {
+server.listen(8050, function () {
     console.log('Starting server on port 8050');
 });
 
@@ -24,11 +24,29 @@ const players = {};
 
 // Add the WebSocket handlers
 io.on('connection', function (socket) {
+
     console.log('Connected!');
     socket.on('new player', function () {
+        console.log('New player id: ' + socket.id)
         players[socket.id] = {
-            name: 'Capitan'
+            name: 'socket.id'
         };
+    });
+
+    socket.on('fire', function () {
+        console.log('Player [' + socket.id + '] FIRE!')
+    });
+
+    socket.on('distance', function () {
+        console.log('Player [' + socket.id + '] NEW DISTANCE!')
+    });
+
+    socket.on('speed up', function () {
+        console.log('Player [' + socket.id + '] SPEED UP!')
+    });
+
+    socket.on('speed down', function () {
+        console.log('Player [' + socket.id + '] SPEED DOWN!')
     });
 
 });
