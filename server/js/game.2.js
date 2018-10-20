@@ -6,6 +6,7 @@ var GAME =
 	g_controls: null,
 	g_ocean: null,
 	
+	g_meshes : new Map(),
 	g_blackPearls: new Map(),
 	g_groupShips: new Map(),
 	g_blackPearlShips: new Map(),
@@ -47,7 +48,7 @@ var GAME =
 		
 		this.g_events.on("login", GAME.NewUserLogin);
 		
-		GAME.NewUserLogin({username: "test"})
+		GAME.NewUserLogin({username: "test"});
 		
 		this.g_events.on("logout", function(data) {
 			
@@ -65,12 +66,44 @@ var GAME =
 	NewUserLogin: function(data) {
 			console.log("new user joined:" + data.username);
 			
+			var geometry = new THREE.BoxGeometry( 100, 100, 100 );
+			var material = Physijs.createMaterial(
+					new THREE.MeshLambertMaterial(
+						//{ map: loader.load( 'images/plywood.jpg' ) }
+						),
+					.6, // medium friction
+					.3 // low restitution
+				);
+				// material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
+				// material.map.repeat.set( .5, .5 );
+			var mesh	= new Physijs.BoxMesh( geometry, material );
+			var mesh2	= new Physijs.BoxMesh( geometry, material );
+			
+			mesh.collisions = 0;
+			mesh.setCcdMotionThreshold(1);
+			mesh.setCcdSweptSphereRadius(0.2);
+			
+			mesh2.collisions = 0;
+			mesh2.setCcdMotionThreshold(1);
+			mesh2.setCcdSweptSphereRadius(0.2);
+			
+			GAME.g_meshes.set(data.username, mesh);
+				
+			GAME.g_scene.add(mesh);
+			GAME.g_scene.add(mesh2);
+				
+			mesh.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+			    console.log("COLL");
+			});
+			
+			mesh2.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+			    console.log("COLL");
+			});
+					
 					
 			var g_groupShip = new THREE.Object3D();
-			
-			var ship = 
-			
 			var g_blackPearlShip = new THREE.Object3D();
+			
 			GAME.g_scene.add(g_groupShip );
 			g_groupShip.add(g_blackPearlShip );
 		
@@ -303,17 +336,73 @@ var GAME =
 		if( this.g_camera.position.y < 0.0 ) {
 			this.g_camera.position.y = 2.0;
 		}
+		
+		if (GAME.yards != undefined) {
+			
+			for (var [username, yards] of GAME.yards) {
+			
+			var mesh1 = yards[0];
+			var mesh2 = yards[2];
+			
+			if (GAME.delta == undefined) {
+				
+				GAME.delta = mesh2.position.x - mesh1.position.x;
+			}
+			
+			if (GAME.delta2 == undefined) {
+				
+				GAME.delta2 = mesh2.position.z - mesh1.position.z;
+			}
+			
+			console.log("GAME.delta " + GAME.delta);
+			console.log("GAME.delta2 " + GAME.delta2);
+			
+			mesh1.position.x = mesh1.position.x + GAME.delta;
+			mesh1.position.z += mesh1.position.z + GAME.delta2;
+			
+		// 		for (var i = 0; i < yards.length - 1; i+=2) {
+					
+		// 			var mesh1 = yards[i]
+		// 			var mesh2 = yards[i + 1]
+		
+					
+		// 			 var vect1 = new THREE.Vector3(mesh1.position.x, mesh1.position.y, mesh1.position.z);
+		// 			 var vect2 = new THREE.Vector3(mesh2.position.x, mesh2.position.y, mesh2.position.z);
+		// 			 var direction = new THREE.Vector3();
+		// 			 direction.subVectors(vect1, vect2);
+		// 			 //var meshDisplacement = ()
 
 
-				var currentTime = new Date().getTime();
+
+		// var shipDisplacement = (direction).multiplyScalar( 2 );
+		// mesh1.position.add( shipDisplacement.normalize() );	
+		// mesh2.position.add( shipDisplacement.normalize()  );	
+		// 			// this.g_groupShips.get(username).rotation.y += this.g_commands.get(username).movements.angle;
+		// 			// this.g_blackPearlShips.get(username).rotation.z = -this.g_commands.get(username).movements.angle * 10.0;
+		// 			if (i % 2 == 0) {
+						
+		// 				//mesh.position.x += -2;
+		// 				// mesh.position.z += -2;
+		// 			} else {
+						
+		// 				//mesh.position.x += 2;
+		// 			}
+		// 		}
+			}
+		}
+
+
+		var currentTime = new Date().getTime();
 		
 		for (var [username, value] of this.g_groupShips) {
 			this.UpdateCommands(username);
 			this.g_groupShips.get(username).rotation.y += this.g_commands.get(username).movements.angle;
+			// console.log(this.g_commands.get(username).movements.angle);
 			this.g_blackPearlShips.get(username).rotation.z = -this.g_commands.get(username).movements.angle * 10.0;
 			this.g_blackPearlShips.get(username).rotation.x = this.g_commands.get(username).movements.speed * 0.1;
 			var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShips.get(username).rotation).multiplyScalar( 10.0 * this.g_commands.get(username).movements.speed );
 			this.g_groupShips.get(username).position.add( shipDisplacement );
+			this.g_meshes.get(username).position.add( shipDisplacement );
 			
 			if( this.g_blackPearls.get(username))
 				{
@@ -439,11 +528,13 @@ var GAME =
 		var handleFire = function (data) {
 						
 			if (GAME.yards == undefined) {
-				GAME.yards = {};
+				GAME.yards = new Map();
 			}
 			
-			GAME.yards.get(data.username);
-			
+			var yards = GAME.yards.get(data.username);
+			if (yards == undefined) {
+				yards = [];
+			}
 			
 			var demo = GAME;
 	
@@ -458,7 +549,13 @@ var GAME =
 						);
 				sphere.collisions = 1;
 				var shipPosition = GAME.g_groupShips.get(data.username).position;
+				var shipRotation = GAME.g_groupShips.get(data.username).rotation;
+				console.log("shipPosition ", GAME.g_groupShips.get(data.username));
 				sphere.position.set(shipPosition.x -35, shipPosition.y + 25, shipPosition.z -i*20);
+				sphere.rotation.set(shipRotation.x, shipRotation.y, shipRotation.z);
+				sphere.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+				    console.log("COLLITION");
+				});
 	
 				var sphere2 = new Physijs.BoxMesh(
 							geometry,
@@ -466,10 +563,21 @@ var GAME =
 						);
 				sphere2.collisions = 1;
 				sphere2.position.set(shipPosition.x + 35, shipPosition.y + 25, shipPosition.z -i*20);
+				sphere2.rotation.set(shipRotation.x, shipRotation.y, shipRotation.z);
+				sphere2.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+				    console.log("COLLITION");
+				});
 	
+	
+				yards.push(sphere);
+				yards.push(sphere2);
+				
 				demo.g_scene.add(sphere );
 				demo.g_scene.add(sphere2);
 			}
+			
+			GAME.yards.set(data.username, yards);
+			
         }
 		
 		this.g_events.on('fire', function (data) {
