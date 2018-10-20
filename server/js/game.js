@@ -17,5 +17,16 @@ var GAME =
 			speed : 0.0,
 			angle : 0.0
 		}
+	},
+	
+	Initialize: function() {
+	    this.renderer = new THREE.WebGLRenderer();
+		this.renderer.context.getExtension( 'OES_texture_float' );
+		this.renderer.context.getExtension( 'OES_texture_float_linear' );
+		this.renderer.setClearColor( 0x000000 );
+		
+		document.body.appendChild( this.renderer.domElement );
+
+		this.scene = new THREE.Scene();
 	}
 }
