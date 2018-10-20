@@ -17,6 +17,7 @@ app.get('/', function (request, response) {
 
 app.use('/client', express.static(__dirname + '/client'));
 app.use('/server', express.static(__dirname + '/server'));
+app.use('/third-party', express.static(__dirname + '/third-party'));
 
 // Starts the server
 server.listen(8080, function () {
