@@ -57,4 +57,14 @@ io.on('connection', function (socket) {
         console.log('Player [' + socket.id + '] SPEED DOWN!')
     });
 
+    socket.on('left', function () {
+        socket.broadcast.emit('left');
+        console.log('Player [' + socket.id + '] LEFT COMMAND!')
+    });
+
+    socket.on('right', function () {
+        socket.broadcast.emit('right');
+        console.log('Player [' + socket.id + '] RIGHT COMMAND!')
+    });
+
 });
