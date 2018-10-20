@@ -5,6 +5,11 @@ var GAME =
 	g_scene : null,
 	g_controls : null,
 	g_ocean : null,
+	
+	g_blackPearls: new Map(),
+	g_groupShips: new Map(),
+	g_blackPearlShips: new Map(),
+	
 	g_events: null,
 
 	g_commands : {
@@ -32,15 +37,18 @@ var GAME =
 
 		this.g_scene = new THREE.Scene();
 		
-		this.g_groupShip = new THREE.Object3D();
-		this.g_blackPearlShip = new THREE.Object3D();
-		this.g_scene.add( this.g_groupShip );
-		this.g_groupShip.add( this.g_blackPearlShip );
+		var g_groupShip = new THREE.Object3D();
+		var g_blackPearlShip = new THREE.Object3D();
+		this.g_scene.add(g_groupShip );
+		g_groupShip.add(g_blackPearlShip );
+		
+		this.g_groupShips.set("1", g_groupShip);
+		this.g_blackPearlShips.set("1", g_blackPearlShip);
 		
 		this.g_camera = new THREE.PerspectiveCamera( 55.0, WINDOW.ms_Width / WINDOW.ms_Height, 0.5, 1000000 );
 		this.g_camera.position.set( 0, 350, 800 );
 		this.g_camera.lookAt( new THREE.Vector3() );
-		this.g_blackPearlShip.add( this.g_camera );
+		this.g_scene.add( this.g_camera );
 		
 		this.g_controls = new THREE.OrbitControls( this.g_camera, this.g_renderer.domElement );
 		this.g_controls.userPan = false;
@@ -88,7 +96,7 @@ var GAME =
 		this.g_scene.add( this.g_mainDirectionalLight );
 
 		var loader = new THREE.OBJMTLLoader( this.g_loader );
-		this.g_blackPearl = null;
+		var g_blackPearl = null;
 		loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl.mtl', function ( object ) {
 			object.position.y = 20.0;
 			if( object.children ) {
@@ -97,8 +105,8 @@ var GAME =
 				}
 			}
 
-			GAME.g_blackPearlShip.add( object );
-			GAME.g_blackPearl = object;
+			GAME.g_blackPearlShips.get("1").add( object );
+			GAME.g_blackPearls.set("1", object);
 		} );
 		
 		
@@ -274,22 +282,22 @@ var GAME =
 
 		// Update black ship displacements
 		this.UpdateCommands();
-		this.g_groupShip.rotation.y += this.g_commands.movements.angle;
-		this.g_blackPearlShip.rotation.z = -this.g_commands.movements.angle * 10.0;
-		this.g_blackPearlShip.rotation.x = this.g_commands.movements.speed * 0.1;
-		var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShip.rotation).multiplyScalar( 10.0 * this.g_commands.movements.speed );
-		this.g_groupShip.position.add( shipDisplacement );
+		this.g_groupShips.get("1").rotation.y += this.g_commands.movements.angle;
+		this.g_blackPearlShips.get("1").rotation.z = -this.g_commands.movements.angle * 10.0;
+		this.g_blackPearlShips.get("1").rotation.x = this.g_commands.movements.speed * 0.1;
+		var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShips.get("1").rotation).multiplyScalar( 10.0 * this.g_commands.movements.speed );
+		this.g_groupShips.get("1").position.add( shipDisplacement );
 
 		var currentTime = new Date().getTime();
 		this.g_ocean.deltaTime = ( currentTime - lastTime ) / 1000 || 0.0;
 		lastTime = currentTime;
 
 		// Update black ship movements
-		if( this.g_blackPearl !== null )
+		if( this.g_blackPearls.get("1") !== null )
 		{
 			var animationRatio = 1.0 + this.g_commands.movements.speed * 1.0;
-			this.g_blackPearl.rotation.y = Math.cos( currentTime * 0.0008 ) * 0.05 - 0.025;
-			this.g_blackPearl.rotation.x = Math.sin( currentTime * 0.001154 + 0.78 ) * 0.1 + 0.05;
+			this.g_blackPearls.get("1").rotation.y = Math.cos( currentTime * 0.0008 ) * 0.05 - 0.025;
+			this.g_blackPearls.get("1").rotation.x = Math.sin( currentTime * 0.001154 + 0.78 ) * 0.1 + 0.05;
 		}
 
 		// Render ocean reflection
