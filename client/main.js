@@ -22,7 +22,7 @@ app.controller('basicController', function($scope) {
 
    $scope.start = function() {
        console.log("START");
-
+       this.screen.orientation.lock('landscape');
        username = $scope.username;
 
        $scope.fightStarted = true;
@@ -66,12 +66,12 @@ app.controller('basicController', function($scope) {
 
     gyro.frequency = 500;
     gyro.startTracking(function (o) {
-        
+
         $("#wheel").css('transform', 'rotate('+ o.y * 10 +'deg)');
 
         if (o.y < -1.5) {
             socket.emit('left', {'username': username, diff: Math.abs(o.y)});
-            
+
         }
 
         if (o.y > 1.5) {
