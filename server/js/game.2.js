@@ -16,6 +16,10 @@ var GAME =
 	g_events: null,
 	
 	Initialize: function() {
+		
+	 //   Physijs.scripts.worker = 'third-party/physijs_worker.js';
+		// Physijs.scripts.ammo = 'third-party/ammo.js';
+		
 	    this.g_events = io.connect('https://sealord-dshybeka.c9users.io');
 	    
 	    this.g_renderer = new THREE.WebGLRenderer();
@@ -56,9 +60,6 @@ var GAME =
 			
 			GAME.g_groupShips.delete(data.username);
 		});
-
-        	Physijs.scripts.worker = 'third-party/physijs_worker.js';
-			Physijs.scripts.ammo = 'third-party/ammo.js';
 		
 		this.InitCommands();
 	},
@@ -66,26 +67,69 @@ var GAME =
 	NewUserLogin: function(data) {
 			console.log("new user joined:" + data.username);
 			
-			var geometry = new THREE.BoxGeometry( 100, 100, 100 );
+			physics_stats = new Stats();
+			physics_stats.domElement.style.position = 'absolute';
+			physics_stats.domElement.style.top = '50px';
+			physics_stats.domElement.style.zIndex = 100;
+			
+			// GAME.g_scene.addEventListener(
+			// 	'update',
+			// 	function() {
+			// 		console.log("in scene event");
+			// 		GAME.g_scene.simulate( undefined, 1 );
+			// 		physics_stats.update();
+			// 	}
+			// );
+			
+			// var geometry = new THREE.BoxGeometry( 100, 100, 100 );
+			var geometry = new THREE.CubeGeometry( 100, 100, 100 )
+			var material23 = new THREE.MeshBasicMaterial( {color: 0x000000} );
 			var material = Physijs.createMaterial(
-					new THREE.MeshLambertMaterial(
-						//{ map: loader.load( 'images/plywood.jpg' ) }
-						),
+					new THREE.MeshBasicMaterial( {color: 0x000000} ),
 					.6, // medium friction
 					.3 // low restitution
 				);
-				material.wrapS = material.wrapT = THREE.RepeatWrapping;
+				
+				var mesh3 = new Physijs.SphereMesh(
+				    new THREE.SphereGeometry( 300 ),
+				    new THREE.MeshBasicMaterial({ color: 0x888888 })
+				);
+				mesh3.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+				    
+				    console.log("huiiuhiuh");
+				});
+				var mesh4 = new Physijs.SphereMesh(
+				    new THREE.SphereGeometry( 400 ),
+				    new THREE.MeshBasicMaterial({ color: 0x888888 })
+				);
+				mesh4.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
+
+				    console.log("huiiuhiu123123h");
+				});
+				GAME.g_scene.add(mesh3);
+				GAME.g_scene.add(mesh4);
+				
+				// Physijs.createMaterial(
+				// 	new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture( 'third-party/images/plywood.jpg' ) }),
+				// 	.6, // medium friction
+				// 	.3 // low restitution
+				// );
+				
+			material.wrapS = material.wrapT = THREE.RepeatWrapping;
 				// material.set( .5, .5 );
-			var mesh	= new Physijs.BoxMesh( geometry, new THREE.MeshBasicMaterial() );
-			var mesh2	= new Physijs.BoxMesh( geometry, new THREE.MeshBasicMaterial() );
+			var mesh	= new Physijs.BoxMesh( geometry, material );
+			var mesh2	= new Physijs.BoxMesh( geometry, material);
+			
+			mesh.castShadow = true;
+			mesh2.castShadow = true;
 			
 			mesh.collisions = 0;
-			mesh.setCcdMotionThreshold(1);
-			mesh.setCcdSweptSphereRadius(0.2);
+			// mesh.setCcdMotionThreshold(1);
+			// mesh.setCcdSweptSphereRadius(0.2);
 			
 			mesh2.collisions = 0;
-			mesh2.setCcdMotionThreshold(1);
-			mesh2.setCcdSweptSphereRadius(0.2);
+			// mesh2.setCcdMotionThreshold(1);
+			// mesh2.setCcdSweptSphereRadius(0.2);
 			
 			GAME.g_meshes.set(data.username, mesh);
 				

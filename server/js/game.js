@@ -103,6 +103,9 @@ var GAME =
 			GAME.g_blackPearlShips.get(data.username).add( object );
 			GAME.g_blackPearls.set(data.username, object);
 			GAME.g_captains.set(data.username, "health");
+			
+			g_groupShip.position.x = Math.floor(Math.random() * (1300 + 1300)) - 1300;
+			g_groupShip.position.z = Math.floor(Math.random() * (1300 + 1300)) - 1300;
 		 });
 		},
 	
