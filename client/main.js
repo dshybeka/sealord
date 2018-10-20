@@ -51,24 +51,18 @@ app.controller('basicController', function($scope) {
    };
 
     gyro.frequency = 5;
-    let currentLeft = 0;
-    let currentRight = 0;
-
     gyro.startTracking(function (o) {
 
-        const newLeft = o.x;
-        const newRight = o.y;
-
-        if (currentLeft !== newLeft) {
-            socket.emit('left',  {'username' : username, diff: Math.abs(newLeft - currentLeft)});
-            console.log("New left: " + newLeft)
-            $("#left").text(newLeft);
+        if (o.y < 0) {
+            socket.emit('left', {'username': username, diff: Math.abs(o.y)});
+            console.log("New left: " + Math.abs(o.y));
+            $("#left").text("Left" + Math.abs(o.y));
         }
 
-        if (currentRight !== newRight) {
-            socket.emit('right',  {'username' : username, diff: Math.abs(newRight - currentRight)});
-            console.log("New right: " + newRight)
-            $("#right").text(newRight);
+        if (o.y > 0) {
+            socket.emit('right', {'username': username, diff: Math.abs(o.y)});
+            console.log("New left: " + Math.abs(o.y));
+            $("#right").text("Right" + Math.abs(o.y));
         }
 
     });
