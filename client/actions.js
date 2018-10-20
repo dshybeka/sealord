@@ -42,7 +42,7 @@ client = (function() {
         }
         
         recognition.onspeechstart  = function(event) {
-            console.log("Started speechk");
+            console.log("Started speech");
             instructions.text('Started!');  
         }
         
