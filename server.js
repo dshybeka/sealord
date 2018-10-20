@@ -17,6 +17,7 @@ app.get('/', function (request, response) {
 
 app.use('/client', express.static(__dirname + '/client'));
 app.use('/server', express.static(__dirname + '/server'));
+app.use('/server/', express.static(__dirname + '/server'));
 app.use('/third-party', express.static(__dirname + '/third-party'));
 
 // Starts the server
@@ -31,39 +32,40 @@ io.on('connection', function (socket) {
 
     console.log('Connected!');
     socket.on('login', function (event) {
+        socket.broadcast.emit('login', event);
         console.log('New player id: ' + event)
         players[socket.id] = {
             name: 'socket.id'
         };
     });
 
-    socket.on('fire', function () {
-        socket.broadcast.emit('fire');
+    socket.on('fire', function (event) {
+        socket.broadcast.emit('fire', event);
         console.log('Player [' + socket.id + '] FIRE!')
     });
 
-    socket.on('distance', function () {
-        socket.broadcast.emit('distance');
+    socket.on('distance', function (event) {
+        socket.broadcast.emit('distance', event);
         console.log('Player [' + socket.id + '] NEW DISTANCE!')
     });
 
-    socket.on('speed up', function () {
-        socket.broadcast.emit('speed up');
+    socket.on('speed up', function (event) {
+        socket.broadcast.emit('speed up', event);
         console.log('Player [' + socket.id + '] SPEED UP!')
     });
 
-    socket.on('speed down', function () {
-        socket.broadcast.emit('speed down');
+    socket.on('speed down', function (event) {
+        socket.broadcast.emit('speed down', event);
         console.log('Player [' + socket.id + '] SPEED DOWN!')
     });
 
-    socket.on('left', function () {
-        socket.broadcast.emit('left');
+    socket.on('left', function (event) {
+        socket.broadcast.emit('left', event);
         console.log('Player [' + socket.id + '] LEFT COMMAND!')
     });
 
-    socket.on('right', function () {
-        socket.broadcast.emit('right');
+    socket.on('right', function (event) {
+        socket.broadcast.emit('right', event);
         console.log('Player [' + socket.id + '] RIGHT COMMAND!')
     });
 

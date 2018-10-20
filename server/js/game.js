@@ -12,18 +12,7 @@ var GAME =
 	
 	g_events: null,
 
-	g_commands : {
-		states : {
-			up : false,
-			right : false,
-			down : false,
-			left : false
-		},
-		movements : {
-			speed : 0.0,
-			angle : 0.0
-		}
-	},
+	g_commands : new Map(),
 	
 	Initialize: function() {
 	    this.g_events = io.connect('https://sealord-dshybeka.c9users.io');
@@ -55,15 +44,31 @@ var GAME =
 		this.InitializeLoader();
 		this.InitializeScene();
 		
+		this.g_events.on("login", function(data) {
+			console.log("new user joined:" + data.username);
+			
+					
 		var g_groupShip = new THREE.Object3D();
 		var g_blackPearlShip = new THREE.Object3D();
-		this.g_scene.add(g_groupShip );
+		GAME.g_scene.add(g_groupShip );
 		g_groupShip.add(g_blackPearlShip );
 		
-		this.g_groupShips.set("1", g_groupShip);
-		this.g_blackPearlShips.set("1", g_blackPearlShip);
+		GAME.g_groupShips.set(data.username, g_groupShip);
+		GAME.g_blackPearlShips.set(data.username, g_blackPearlShip);
+		GAME.g_commands.set(data.username, {
+			states : {
+				up : false,
+				right : false,
+				down : false,
+				left : false
+			},
+			movements : {
+				speed : 0.0,
+				angle : 0.0
+			}
+		});
 		
-		var loader = new THREE.OBJMTLLoader( this.g_loader );
+		var loader = new THREE.OBJMTLLoader( GAME.g_loader );
 		var g_blackPearl = null;
 		loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl.mtl', function ( object ) {
 			object.position.y = 20.0;
@@ -73,9 +78,11 @@ var GAME =
 				}
 			}
 
-			GAME.g_blackPearlShips.get("1").add( object );
-			GAME.g_blackPearls.set("1", object);
-		} );
+			GAME.g_blackPearlShips.get(data.username).add( object );
+			GAME.g_blackPearls.set(data.username, object);
+		 });
+		});
+
 		
 		this.InitCommands();
 	},
@@ -280,24 +287,33 @@ var GAME =
 		}
 
 		// Update black ship displacements
-		this.UpdateCommands();
-		this.g_groupShips.get("1").rotation.y += this.g_commands.movements.angle;
-		this.g_blackPearlShips.get("1").rotation.z = -this.g_commands.movements.angle * 10.0;
-		this.g_blackPearlShips.get("1").rotation.x = this.g_commands.movements.speed * 0.1;
-		var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShips.get("1").rotation).multiplyScalar( 10.0 * this.g_commands.movements.speed );
-		this.g_groupShips.get("1").position.add( shipDisplacement );
+				var currentTime = new Date().getTime();
+		
+		for (var [username, value] of this.g_groupShips) {
+			this.UpdateCommands(username);
+			this.g_groupShips.get(username).rotation.y += this.g_commands.get(username).movements.angle;
+			this.g_blackPearlShips.get(username).rotation.z = -this.g_commands.get(username).movements.angle * 10.0;
+			this.g_blackPearlShips.get(username).rotation.x = this.g_commands.get(username).movements.speed * 0.1;
+			var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShips.get(username).rotation).multiplyScalar( 10.0 * this.g_commands.get(username).movements.speed );
+			this.g_groupShips.get(username).position.add( shipDisplacement );
+			
+					// Update black ship movements
+			if( this.g_blackPearls.get(username))
+				{
+				var animationRatio = 1.0 + this.g_commands.get(username).movements.speed * 1.0;
+				this.g_blackPearls.get(username).rotation.y = Math.cos( currentTime * 0.0008 ) * 0.05 - 0.025;
+				this.g_blackPearls.get(username).rotation.x = Math.sin( currentTime * 0.001154 + 0.78 ) * 0.1 + 0.05;
+			}
+			
+			this.g_controls.update();
+		}
 
-		var currentTime = new Date().getTime();
+
+
 		this.g_ocean.deltaTime = ( currentTime - lastTime ) / 1000 || 0.0;
 		lastTime = currentTime;
 
-		// Update black ship movements
-		if( this.g_blackPearls.get("1") !== null )
-		{
-			var animationRatio = 1.0 + this.g_commands.movements.speed * 1.0;
-			this.g_blackPearls.get("1").rotation.y = Math.cos( currentTime * 0.0008 ) * 0.05 - 0.025;
-			this.g_blackPearls.get("1").rotation.x = Math.sin( currentTime * 0.001154 + 0.78 ) * 0.1 + 0.05;
-		}
+
 
 		// Render ocean reflection
 		this.g_ocean.render();
@@ -308,7 +324,7 @@ var GAME =
 		// Update ocean data
 		this.g_ocean.update();
 		
-		this.g_controls.update();
+
 		this.Display();
 
 	},
@@ -328,9 +344,9 @@ var GAME =
 
 	},
 	
-		UpdateCommands : function UpdateCommands() {
+		UpdateCommands : function UpdateCommands(username) {
 
-		var states = this.g_commands.states;
+		var states = this.g_commands.get(username).states;
 
 		// Update speed
 		var targetSpeed = 0.0;
@@ -340,8 +356,8 @@ var GAME =
 		else if( states.down ) {
 			targetSpeed = -0.5;
 		}
-		var curSpeed = this.g_commands.movements.speed ;
-		this.g_commands.movements.speed = curSpeed + ( targetSpeed - curSpeed ) * 0.02;
+		var curSpeed = this.g_commands.get(username).movements.speed ;
+		this.g_commands.get(username).movements.speed = curSpeed + ( targetSpeed - curSpeed ) * 0.02;
 
 		// Update angle
 		var targetAngle = 0.0;
@@ -355,8 +371,8 @@ var GAME =
 			targetAngle *= -1.0;
 		}
 		
-		var curAngle = this.g_commands.movements.angle ;
-		this.g_commands.movements.angle = curAngle + ( targetAngle - curAngle ) * 0.02;
+		var curAngle = this.g_commands.get(username).movements.angle ;
+		this.g_commands.get(username).movements.angle = curAngle + ( targetAngle - curAngle ) * 0.02;
 
 	},
 		InitCommands : function InitCommands() {
@@ -366,47 +382,47 @@ var GAME =
 			RIGHT = 39,
 			DOWN = 40;
 
-		var keyHandler = function keyHandler( action ) {
+		var keyHandler = function keyHandler( action, data ) {
 			return function( event ) {
 				var key = event.which;
 				if( key >= LEFT && key <= DOWN ) {
 					switch( key ) {
-						case UP : GAME.g_commands.states.up = action ; break ;
-						case RIGHT : GAME.g_commands.states.right = action ; break ;
-						case DOWN : GAME.g_commands.states.down = action ; break ;
-						case LEFT : GAME.g_commands.states.left = action ; break ;
+						case UP : GAME.g_commands.get(data.username).states.up = action ; break ;
+						case RIGHT : GAME.g_commands.get(data.username).states.right = action ; break ;
+						case DOWN : GAME.g_commands.get(data.username).states.down = action ; break ;
+						case LEFT : GAME.g_commands.get(data.username).states.left = action ; break ;
 					}
 				}
 			}
 		}
 		
-		var eventHandler = function eventHandler( action ) {
+		var eventHandler = function eventHandler( action, data ) {
 					switch( action ) {
-						case 'speed up' : GAME.g_commands.states.up = true ; break ;
-						case 'right' : GAME.g_commands.states.right = true ; break ;
-						case 'speed down' : GAME.g_commands.states.up = false ; break ;
-						case 'left' : GAME.g_commands.states.left = true ; break ;
+						case 'speed up' : GAME.g_commands.get(data.username).states.up = true ; break ;
+						case 'right' : GAME.g_commands.get(data.username).states.right = true ; break ;
+						case 'speed down' : GAME.g_commands.get(data.username).states.up = false ; break ;
+						case 'left' : GAME.g_commands.get(data.username).states.left = true ; break ;
 					}
 		}
 		
 		this.g_events.on('fire', function (data) {
-           eventHandler('fire');
+           eventHandler('fire', data);
         });
 		
 		this.g_events.on('speed up', function (data) {
-           eventHandler('speed up');
+           eventHandler('speed up', data);
         });
         
         this.g_events.on('speed down', function (data) {
-           eventHandler('speed down');
+           eventHandler('speed down', data);
         });
         
         this.g_events.on('right', function (data) {
-           eventHandler('rigth');
+           eventHandler('rigth', data);
         });
         
         this.g_events.on('left', function (data) {
-           eventHandler('left');
+           eventHandler('left', data);
         });
 
 		$( document ).keydown( keyHandler( true ) );
