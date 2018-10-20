@@ -13,8 +13,9 @@ var GAME =
 	g_captains: new Map(),
 	
 	g_events: null,
-	
-	Initialize: function() {
+    g_userCounter: 0,
+
+    Initialize: function() {
 	    this.g_events = io.connect('https://sealord-dshybeka.c9users.io');
 	    
 	    this.g_renderer = new THREE.WebGLRenderer();
@@ -65,7 +66,7 @@ var GAME =
 		
 		this.InitCommands();
 	},
-	
+
 	NewUserLogin: function(data) {
 			console.log("new user joined:" + data.username);
 			
@@ -92,14 +93,14 @@ var GAME =
 		
 			var loader = new THREE.OBJMTLLoader( GAME.g_loader );
 			var g_blackPearl = null;
-			loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl.mtl', function ( object ) {
+			loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl' + GAME.g_userCounter +'.mtl', function ( object ) {
 				object.position.y = 20.0;
 				if( object.children ) {
 					for( child in object.children ) {
 						object.children[child].material.side = THREE.DoubleSide;
 					}
 				}
-
+                GAME.g_userCounter++;
 			GAME.g_blackPearlShips.get(data.username).add( object );
 			GAME.g_blackPearls.set(data.username, object);
 			GAME.g_captains.set(data.username, "health");
