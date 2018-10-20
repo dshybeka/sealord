@@ -1,4 +1,3 @@
-
 // Dependencies
 const express = require('express');
 const http = require('http');
@@ -20,7 +19,15 @@ server.listen(8050, function() {
     console.log('Starting server on port 8050');
 });
 
+const players = {};
+
 // Add the WebSocket handlers
-io.on('connection', function(socket) {
-    console.log('Started');
+io.on('connection', function (socket) {
+
+    socket.on('new player', function () {
+        players[socket.id] = {
+            name: 'Capitan'
+        };
+    });
+
 });
