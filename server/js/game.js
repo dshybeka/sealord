@@ -21,7 +21,7 @@ var GAME =
 	},
 	
 	Initialize: function() {
-	    //this.g_events = io.connect('http://localhost/');
+	    this.g_events = io.connect('https://sealord-dshybeka.c9users.io');
 	    
 	    this.g_renderer = new THREE.WebGLRenderer();
 		this.g_renderer.context.getExtension( 'OES_texture_float' );
@@ -375,19 +375,34 @@ var GAME =
 		
 		var eventHandler = function eventHandler( action ) {
 					switch( action ) {
-						case 'speed up' : GAME.g_commands.states.up = action ; break ;
-						case RIGHT : GAME.g_commands.states.right = action ; break ;
-						case 'speed down' : GAME.g_commands.states.down = action ; break ;
-						case LEFT : GAME.g_commands.states.left = action ; break ;
+						case 'speed up' : GAME.g_commands.states.up = true ; break ;
+						case 'right' : GAME.g_commands.states.right = true ; break ;
+						case 'speed down' : GAME.g_commands.states.up = false ; break ;
+						case 'left' : GAME.g_commands.states.left = true ; break ;
 					}
 		}
 		
-		//this.g_events.on('connect', function () {
-        //    g_events.emit('hi!');
-        //});
+		this.g_events.on('fire', function (data) {
+           eventHandler('fire');
+        });
+		
+		this.g_events.on('speed up', function (data) {
+           eventHandler('speed up');
+        });
+        
+        this.g_events.on('speed down', function (data) {
+           eventHandler('speed down');
+        });
+        
+        this.g_events.on('right', function (data) {
+           eventHandler('rigth');
+        });
+        
+        this.g_events.on('left', function (data) {
+           eventHandler('left');
+        });
 
 		$( document ).keydown( keyHandler( true ) );
 		$( document ).keyup( keyHandler( false ) );
-
-	},
+	}
 }

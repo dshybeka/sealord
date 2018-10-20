@@ -38,18 +38,22 @@ io.on('connection', function (socket) {
     });
 
     socket.on('fire', function () {
+        socket.broadcast.emit('fire');
         console.log('Player [' + socket.id + '] FIRE!')
     });
 
     socket.on('distance', function () {
+        socket.broadcast.emit('distance');
         console.log('Player [' + socket.id + '] NEW DISTANCE!')
     });
 
     socket.on('speed up', function () {
+        socket.broadcast.emit('speed up');
         console.log('Player [' + socket.id + '] SPEED UP!')
     });
 
     socket.on('speed down', function () {
+        socket.broadcast.emit('speed down');
         console.log('Player [' + socket.id + '] SPEED DOWN!')
     });
 

@@ -65,17 +65,20 @@ client = (function() {
             recognition.start();
         };
         
-        $('#start-record-btn').on('click', function(e) {
-          recognition.start();
-        });
-        $('#stop-record-btn').on('click', function(e) {
-          recognition.stop();
-        });
+        recognition.start();
+        
+        // $('#start-record-btn').on('click', function(e) {
+        //   recognition.start();
+        // });
+        // $('#stop-record-btn').on('click', function(e) {
+        //   recognition.stop();
+        // });
     }
     
     self.pi = function() {
         console.log("Pi!");
         instructions.text("ho-ho-ho");
+        self.recognition.start();
     }
     
     init();

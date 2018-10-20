@@ -3,8 +3,10 @@ $( document ).ready(function() {
     
     console.log(client);
     
-    client.pi();
+    // client.pi();
 });
+
+var socket = {};
 
 var app = angular.module('seaLord', []);
 app.controller('basicController', function($scope) {
@@ -24,26 +26,19 @@ app.controller('basicController', function($scope) {
        
        $scope.fightStarted = true;
        
-       $scope.socket = io('https://sealord-dshybeka.c9users.io');
+       socket = io.connect('https://sealord-dshybeka.c9users.io');
        
-       console.log($scope.socket);
+       console.log(client);
        
+       client.pi();
+
        
-       $scope.socket.on('connect', function(){
-           console.log("CONNECTED");
-       });
-       $scope.socket.on('event', function(data){
-           console.log("DATA" + data);
-       });
-       $scope.socket.on('disconnect', function(){});
-       
-       $scope.socket.emit("my other event", { message : "client emit" } );
    };
    
    $scope.stop = function() {
        console.log("STOP");
        
-       $scope.socket.close();
+       socket.close();
        $scope.fightStarted = false;
    };
    
