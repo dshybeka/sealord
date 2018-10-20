@@ -60,11 +60,13 @@ app.controller('basicController', function($scope) {
         const newRight = o.y;
 
         if (currentLeft !== newLeft) {
+            socket.emit('left',  {'username' : username, diff: Math.abs(newLeft - currentLeft)});
             console.log("New left: " + newLeft)
             $("#left").text(newLeft);
         }
 
         if (currentRight !== newRight) {
+            socket.emit('right',  {'username' : username, diff: Math.abs(newRight - currentRight)});
             console.log("New right: " + newRight)
             $("#right").text(newRight);
         }
