@@ -22,7 +22,6 @@ app.controller('basicController', function($scope) {
 
    $scope.start = function() {
        console.log("START");
-       this.screen.orientation.lock('landscape');
        username = $scope.username;
 
        $scope.fightStarted = true;
