@@ -61,10 +61,12 @@ app.controller('basicController', function($scope) {
 
         if (currentLeft !== newLeft) {
             console.log("New left: " + newLeft)
+            $("#left").text(newLeft);
         }
 
         if (currentRight !== newRight) {
             console.log("New right: " + newRight)
+            $("#right").text(newRight);
         }
 
     });

@@ -9,7 +9,6 @@ var GAME =
 	g_blackPearls: new Map(),
 	g_groupShips: new Map(),
 	g_blackPearlShips: new Map(),
-	g_controls: new Map(),
 	
 	g_events: null,
 
@@ -38,6 +37,24 @@ var GAME =
 
 		this.g_scene = new THREE.Scene();
 		
+		this.g_camera = new THREE.PerspectiveCamera( 55.0, WINDOW.ms_Width / WINDOW.ms_Height, 0.5, 1000000 );
+		this.g_camera.position.set( 0, 350, 800 );
+		this.g_camera.lookAt( new THREE.Vector3() );
+		this.g_scene.add( this.g_camera );
+		
+		this.g_controls = new THREE.OrbitControls( this.g_camera, this.g_renderer.domElement );
+		this.g_controls.userPan = false;
+		this.g_controls.target.set( 0, 100.0, 0 );
+		this.g_controls.noKeys = true;
+		this.g_controls.userPanSpeed = 0;
+		this.g_controls.minDistance = 0;
+		this.g_controls.maxDistance = 20000.0;
+		this.g_controls.minPolarAngle = 0;
+		this.g_controls.maxPolarAngle = Math.PI * 0.75;
+		
+		this.InitializeLoader();
+		this.InitializeScene();
+		
 		var g_groupShip = new THREE.Object3D();
 		var g_blackPearlShip = new THREE.Object3D();
 		this.g_scene.add(g_groupShip );
@@ -46,25 +63,19 @@ var GAME =
 		this.g_groupShips.set("1", g_groupShip);
 		this.g_blackPearlShips.set("1", g_blackPearlShip);
 		
-		this.g_camera = new THREE.PerspectiveCamera( 55.0, WINDOW.ms_Width / WINDOW.ms_Height, 0.5, 1000000 );
-		this.g_camera.position.set( 0, 350, 800 );
-		this.g_camera.lookAt( new THREE.Vector3() );
-		this.g_scene.add( this.g_camera );
-		
-		var = g_controls = new THREE.OrbitControls( this.g_camera, this.g_renderer.domElement );
-		g_controls.userPan = false;
-		g_controls.target.set( 0, 100.0, 0 );
-		g_controls.noKeys = true;
-		g_controls.userPanSpeed = 0;
-		g_controls.minDistance = 0;
-		g_controls.maxDistance = 20000.0;
-		g_controls.minPolarAngle = 0;
-		g_controls.maxPolarAngle = Math.PI * 0.75;
-		
-		this.g_controls.set("1", g_controls)
-		
-		this.InitializeLoader();
-		this.InitializeScene();
+		var loader = new THREE.OBJMTLLoader( this.g_loader );
+		var g_blackPearl = null;
+		loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl.mtl', function ( object ) {
+			object.position.y = 20.0;
+			if( object.children ) {
+				for( child in object.children ) {
+					object.children[child].material.side = THREE.DoubleSide;
+				}
+			}
+
+			GAME.g_blackPearlShips.get("1").add( object );
+			GAME.g_blackPearls.set("1", object);
+		} );
 		
 		this.InitCommands();
 	},
@@ -97,21 +108,6 @@ var GAME =
 		this.g_mainDirectionalLight = new THREE.DirectionalLight( 0xffffff, 1.5 );
 		this.g_mainDirectionalLight.position.set( -0.2, 0.5, 1 );
 		this.g_scene.add( this.g_mainDirectionalLight );
-
-		var loader = new THREE.OBJMTLLoader( this.g_loader );
-		var g_blackPearl = null;
-		loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl.mtl', function ( object ) {
-			object.position.y = 20.0;
-			if( object.children ) {
-				for( child in object.children ) {
-					object.children[child].material.side = THREE.DoubleSide;
-				}
-			}
-
-			GAME.g_blackPearlShips.get("1").add( object );
-			GAME.g_blackPearls.set("1", object);
-		} );
-		
 		
 		this.g_cloudShader = new CloudShader( this.ms_Renderer, 512 );
 		this.g_cloudShader.cloudMesh.scale.multiplyScalar( 4.0 );
