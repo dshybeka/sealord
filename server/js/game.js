@@ -96,7 +96,7 @@ var GAME =
 		
 			var loader = new THREE.OBJMTLLoader( GAME.g_loader );
 			var g_blackPearl = null;
-			loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl' + GAME.g_userCounter +'.mtl', function ( object ) {
+        loader.load('../server/third-party/models/BlackPearl/BlackPearl' + GAME.g_userCounter + '.obj', '../server/third-party/models/BlackPearl/BlackPearl' + GAME.g_userCounter +'.mtl', function ( object ) {
 				object.position.y = 20.0;
 				if( object.children ) {
 					for( child in object.children ) {
