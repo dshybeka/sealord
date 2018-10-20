@@ -75,9 +75,9 @@ var GAME =
 			// GAME.g_scene.addEventListener(
 			// 	'update',
 			// 	function() {
-			// 		console.log("in scene event");
+			// 		// console.log("in scene event");
 			// 		GAME.g_scene.simulate( undefined, 1 );
-			// 		physics_stats.update();
+			// 		// physics_stats.update();
 			// 	}
 			// );
 			
@@ -90,24 +90,6 @@ var GAME =
 					.3 // low restitution
 				);
 				
-				var mesh3 = new Physijs.SphereMesh(
-				    new THREE.SphereGeometry( 300 ),
-				    new THREE.MeshBasicMaterial({ color: 0x888888 })
-				);
-				mesh3.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-				    
-				    console.log("huiiuhiuh");
-				});
-				var mesh4 = new Physijs.SphereMesh(
-				    new THREE.SphereGeometry( 400 ),
-				    new THREE.MeshBasicMaterial({ color: 0x888888 })
-				);
-				mesh4.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-
-				    console.log("huiiuhiu123123h");
-				});
-				GAME.g_scene.add(mesh3);
-				GAME.g_scene.add(mesh4);
 				
 				// Physijs.createMaterial(
 				// 	new THREE.MeshLambertMaterial({ map: THREE.ImageUtils.loadTexture( 'third-party/images/plywood.jpg' ) }),
@@ -120,8 +102,8 @@ var GAME =
 			var mesh	= new Physijs.BoxMesh( geometry, material );
 			var mesh2	= new Physijs.BoxMesh( geometry, material);
 			
-			mesh.castShadow = true;
-			mesh2.castShadow = true;
+			// mesh.castShadow = true;
+			// mesh2.castShadow = true;
 			
 			mesh.collisions = 0;
 			// mesh.setCcdMotionThreshold(1);
@@ -131,10 +113,11 @@ var GAME =
 			// mesh2.setCcdMotionThreshold(1);
 			// mesh2.setCcdSweptSphereRadius(0.2);
 			
-			GAME.g_meshes.set(data.username, mesh);
+			// GAME.g_meshes.set(data.username, mesh);
 				
-			GAME.g_scene.add(mesh);
-			GAME.g_scene.add(mesh2);
+			// GAME.g_scene.add(mesh);
+			// GAME.g_scene.add(mesh2);
+			// GAME.g_scene.simulate();
 				
 			mesh.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
 			    console.log("COLL");
@@ -412,8 +395,7 @@ var GAME =
 					var mesh1 = yards[i]
 					
 					if (mesh1.round > 130) {
-						
-						console.log("remove");
+
 						GAME.g_scene.remove(mesh1);
 						continue;
 					}
@@ -510,6 +492,7 @@ var GAME =
 
 		this.Display();
 
+		GAME.g_scene.simulate();
 	},
 	
 		Display : function () {

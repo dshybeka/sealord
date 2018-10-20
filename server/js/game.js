@@ -500,7 +500,7 @@ if (GAME.yards != undefined) {
 				//console.log("shipPosition ", GAME.g_groupShips.get(data.username));
 				sphere.position.set(shipPosition.x -35, shipPosition.y + 25, shipPosition.z -i*20);
 				sphere.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-				    console.log("COLLITION");
+				    console.log("COLLITION" + JSON.stringify(other_object));
 				});
 	
 				var sphere2 = new Physijs.BoxMesh(
@@ -510,7 +510,7 @@ if (GAME.yards != undefined) {
 				sphere2.collisions = 1;
 				sphere2.position.set(shipPosition.x + 35, shipPosition.y + 25, shipPosition.z -i*20);
 				sphere2.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
-				    console.log("COLLITION");
+				    console.log("COLLITION" + JSON.stringify(other_object));
 				});
 
 				var delta = 2;
