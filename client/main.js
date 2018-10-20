@@ -15,7 +15,7 @@ app.controller('basicController', function($scope) {
    
    $scope.fightStarted = false;
    
-   $scope.socket;
+   $scope.socket= {};
    
    $scope.start = function() {
        console.log("START");
@@ -24,10 +24,21 @@ app.controller('basicController', function($scope) {
        
        $scope.fightStarted = true;
        
-       $scope.socket = io('http://localhost');
+       $scope.socket = io('//sealord-dshybeka.c9users.io:8050/server/');
        $scope.socket.on('connect', function(){
-       $scope.socket.on('event', function(data){});
+           console.log("CONNECTED");
+       });
+       $scope.socket.on('event', function(data){
+           console.log("DATA" + data);
+       });
        $scope.socket.on('disconnect', function(){});
+   };
+   
+   $scope.stop = function() {
+       console.log("STOP");
+       
+       $scope.socket.close();
+       $scope.fightStarted = false;
    };
    
    $scope.allowFight= function(){

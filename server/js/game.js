@@ -39,8 +39,20 @@ var GAME =
 		this.g_camera.lookAt( new THREE.Vector3() );
 		this.g_blackPearlShip.add( this.g_camera );
 		
+		this.g_controls = new THREE.OrbitControls( this.g_camera, this.g_renderer.domElement );
+		this.g_controls.userPan = false;
+		this.g_controls.target.set( 0, 100.0, 0 );
+		this.g_controls.noKeys = true;
+		this.g_controls.userPanSpeed = 0;
+		this.g_controls.minDistance = 0;
+		this.g_controls.maxDistance = 20000.0;
+		this.g_controls.minPolarAngle = 0;
+		this.g_controls.maxPolarAngle = Math.PI * 0.75;
+		
 		this.InitializeLoader();
 		this.InitializeScene();
+		
+		this.InitCommands();
 	},
 	
 	InitializeLoader: function() {
@@ -110,35 +122,172 @@ var GAME =
 			GEOMETRY_SIZE : gsize,
 			RESOLUTION : res
 		} );
+		
+		this.LoadSkyBox();
+		this.LoadMountains();
+	},
+	
+		LoadSkyBox : function LoadSkyBox() {
 
+		var cubeShader = THREE.ShaderLib['cube'];
+
+		var skyBoxMaterial = new THREE.ShaderMaterial( {
+			fragmentShader: cubeShader.fragmentShader,
+			vertexShader: cubeShader.vertexShader,
+			uniforms: cubeShader.uniforms,
+			side: THREE.BackSide
+		} );
+
+		this.g_skyBox = new THREE.Mesh(
+			new THREE.BoxGeometry( 450000, 450000, 450000 ),
+			skyBoxMaterial
+		);
+
+		this.g_scene.add( this.g_skyBox );
+
+		// https://stackoverflow.com/questions/3552944/how-to-get-the-anchor-from-the-url-using-jquery
+		var url = window.location.href, idx = url.indexOf("#");
+		var anchor = idx != -1 ? url.substring(idx+1) : null;
+		var environmentParameter = anchor;
+
+		if( environmentParameter !== null ) {
+			this.g_environment = environmentParameter;
+		}
+
+		this.UpdateEnvironment( this.g_Environment );
+
+	},
+	
+	
+	LoadMountains : function LoadSkyBox() {
+
+		var demo = this;
+
+		var mountainTexture = new THREE.Texture();
+		mountainTexture.generateMipmaps = false;
+		mountainTexture.magFilter = THREE.LinearFilter;
+		mountainTexture.minFilter = THREE.LinearFilter;
+		this.g_imageLoader.load( '../server/third-party/img/mountains.png', function ( image ) {
+				mountainTexture.image = image;
+				mountainTexture.needsUpdate = true;
+		} );
+
+
+		var mountainsMaterial = new THREE.MeshBasicMaterial( {
+			map: mountainTexture,
+			transparent: true,
+			side: THREE.BackSide,
+			depthWrite: false
+		} );
+
+		var addMountain = function addMountain( size ) {
+
+			var moutains = new THREE.Mesh(
+				new THREE.CylinderGeometry( size, size, 35000, 32, 1, true ),
+				mountainsMaterial
+			);
+			moutains.position.y = 10000;
+			demo.g_scene.add( moutains );
+
+		} ;
+
+		// Add twice with different size in order to avoid some artifacts on the reflection
+		addMountain( 120000 );
+		addMountain( 150000 );
+
+		// Add a black cylinder to hide the skybox under the water
+		var cylinder = new THREE.Mesh(
+			new THREE.CylinderGeometry( 150000, 150000, 150000, 32, 1, true ),
+			new THREE.MeshBasicMaterial( { color: new THREE.Color( 1, 1, 1 ), side: THREE.BackSide } )
+		);
+		cylinder.position.y = -80000;
+		demo.g_scene.add( cylinder );
+
+	},
+	
+		UpdateEnvironment : function UpdateEnvironment( key ) {
+
+		var textureName = '';
+		var textureExt = ".jpg";
+		var directionalLightPosition = null;
+		var directionalLightColor = null;
+		var raining = false;
+
+
+	   textureName = 'sky';
+	   directionalLightPosition = new THREE.Vector3( -0.5, 0.5, -0.6 );
+	   directionalLightColor = new THREE.Color( 1, 0.95, 0.9 );
+
+		
+		this.g_environment = key;
+		this.g_mainDirectionalLight.position.copy( directionalLightPosition );
+		this.g_mainDirectionalLight.color.copy( directionalLightColor );
+		this.g_ocean.materialOcean.uniforms.u_sunDirection.value.copy( this.g_mainDirectionalLight.position );
+		
+		var sources = [
+			'../server/third-party/img/' + textureName + '_west' + textureExt,
+			'../server/third-party/img/' + textureName + '_east' + textureExt,
+			'../server/third-party/img/' + textureName + '_up' + textureExt,
+			'../server/third-party/img/' + textureName + '_down' + textureExt,
+			'../server/third-party/img/' + textureName + '_south' + textureExt,
+			'../server/third-party/img/' + textureName + '_north' + textureExt
+		];
+		var images = [];
+
+		var cubeMap = new THREE.CubeTexture( images );
+		cubeMap.flipY = false;
+
+		var imageLoader = this.g_imageLoader;
+		var loaded = 0;
+		var loadTexture = function ( i ) {
+			imageLoader.load( sources[ i ], function ( image ) {
+				cubeMap.images[ i ] = image;
+				loaded ++;
+				if ( loaded === 6 ) {
+					cubeMap.needsUpdate = true;
+				}
+			} );
+
+		}
+
+		for ( var i = 0, il = sources.length; i < il; ++ i ) {
+			loadTexture( i );
+		}
+		
+		cubeMap.format = THREE.RGBFormat;
+		cubeMap.generateMipmaps = false;
+		cubeMap.magFilter = THREE.LinearFilter;
+		cubeMap.minFilter = THREE.LinearFilter;
+
+		this.g_skyBox.material.uniforms['tCube'].value = cubeMap;
 	},
 	
 	Update : function () {
 
 		// Update camera position
 		if( this.g_camera.position.y < 0.0 ) {
-			this.ms_Camera.position.y = 2.0;
+			this.g_camera.position.y = 2.0;
 		}
 
 		// Update black ship displacements
-		//this.UpdateCommands();
-		//this.g_groupShip.rotation.y += this.g_commands.movements.angle;
-		//this.g_blackPearlShip.rotation.z = -this.g_commands.movements.angle * 10.0;
-		//this.g_blackPearlShip.rotation.x = this.g_ommands.movements.speed * 0.1;
-		//var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShip.rotation).multiplyScalar( 10.0 * this.g_commands.movements.speed );
-		//this.g_groupShip.position.add( shipDisplacement );
+		this.UpdateCommands();
+		this.g_groupShip.rotation.y += this.g_commands.movements.angle;
+		this.g_blackPearlShip.rotation.z = -this.g_commands.movements.angle * 10.0;
+		this.g_blackPearlShip.rotation.x = this.g_commands.movements.speed * 0.1;
+		var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShip.rotation).multiplyScalar( 10.0 * this.g_commands.movements.speed );
+		this.g_groupShip.position.add( shipDisplacement );
 
-		//var currentTime = new Date().getTime();
-		//this.g_ocean.deltaTime = ( currentTime - lastTime ) / 1000 || 0.0;
-		//lastTime = currentTime;
+		var currentTime = new Date().getTime();
+		this.g_ocean.deltaTime = ( currentTime - lastTime ) / 1000 || 0.0;
+		lastTime = currentTime;
 
 		// Update black ship movements
-		//if( this.g_blackPearl !== null )
-		//{
-		//	var animationRatio = 1.0 + this.g_commands.movements.speed * 1.0;
-		//	this.g_blackPearl.rotation.y = Math.cos( currentTime * 0.0008 ) * 0.05 - 0.025;
-	//		this.g_blackPearl.rotation.x = Math.sin( currentTime * 0.001154 + 0.78 ) * 0.1 + 0.05;
-	//	}
+		if( this.g_blackPearl !== null )
+		{
+			var animationRatio = 1.0 + this.g_commands.movements.speed * 1.0;
+			this.g_blackPearl.rotation.y = Math.cos( currentTime * 0.0008 ) * 0.05 - 0.025;
+			this.g_blackPearl.rotation.x = Math.sin( currentTime * 0.001154 + 0.78 ) * 0.1 + 0.05;
+		}
 
 		// Render ocean reflection
 		this.g_ocean.render();
@@ -149,7 +298,7 @@ var GAME =
 		// Update ocean data
 		this.g_ocean.update();
 		
-		//this.ms_Controls.update();
+		this.g_controls.update();
 		this.Display();
 
 	},
@@ -167,5 +316,62 @@ var GAME =
 		this.g_renderer.setSize( inWidth, inHeight );
 		this.Display();
 
-	}
+	},
+	
+		UpdateCommands : function UpdateCommands() {
+
+		var states = this.g_commands.states;
+
+		// Update speed
+		var targetSpeed = 0.0;
+		if( states.up ) {
+			targetSpeed = 1.0;
+		}
+		else if( states.down ) {
+			targetSpeed = -0.5;
+		}
+		var curSpeed = this.g_commands.movements.speed ;
+		this.g_commands.movements.speed = curSpeed + ( targetSpeed - curSpeed ) * 0.02;
+
+		// Update angle
+		var targetAngle = 0.0;
+		if( states.left ) {
+			targetAngle = Math.PI * 0.005;
+		}
+		else if( states.right ) {
+			targetAngle = -Math.PI * 0.005;
+		}
+		if( states.down ) {
+			targetAngle *= -1.0;
+		}
+		
+		var curAngle = this.g_commands.movements.angle ;
+		this.g_commands.movements.angle = curAngle + ( targetAngle - curAngle ) * 0.02;
+
+	},
+		InitCommands : function InitCommands() {
+
+		var LEFT = 37,
+			UP = 38,
+			RIGHT = 39,
+			DOWN = 40;
+
+		var keyHandler = function keyHandler( action ) {
+			return function( event ) {
+				var key = event.which;
+				if( key >= LEFT && key <= DOWN ) {
+					switch( key ) {
+						case UP : GAME.g_commands.states.up = action ; break ;
+						case RIGHT : GAME.g_commands.states.right = action ; break ;
+						case DOWN : GAME.g_commands.states.down = action ; break ;
+						case LEFT : GAME.g_commands.states.left = action ; break ;
+					}
+				}
+			}
+		}
+
+		$( document ).keydown( keyHandler( true ) );
+		$( document ).keyup( keyHandler( false ) );
+
+	},
 }

@@ -5,23 +5,7 @@ client = (function() {
     var self = this;
     
     var instructions = $("#instr");
-    
-    // function init() {
-        
-    //     try {
-    //     //   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    //     //   var SpeechRecognition = SpeechRecognition.SpeechRecognition()
-    //       var recognition = SpeechRecognition.SpeechRecognition();
-          
-    //       console.log("recognition " + recognition);
-    //       initSpeech(recognition);
-    //     }
-    //     catch(e) {
-    //       console.error(e);
-    //     //   $('.no-browser-support').show();
-    //     //   $('.app').hide();
-    //     }
-    // }
+
     function init() {
         
         var SpeechRecognition = SpeechRecognition || webkitSpeechRecognition
@@ -74,6 +58,7 @@ client = (function() {
           }
         
           console.log("text " + noteContent);
+          nlu.handle(noteContent);
         }
         
         recognition.onend = function() {

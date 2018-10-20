@@ -2,10 +2,11 @@
 <html>
     <head>
         <title>SAILLORD</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"/>      
     </head>
 
     <body>
-		<script src="third-party/libs/socket.io.js"></script>
+		<script src="socket.io/socket.io.js"></script>
 		<script src="third-party/libs/three.min.js"></script>
 		<script src="third-party/libs/dat.gui.min.js"></script>
 		<script src="third-party/libs/jquery-2.1.4.min.js"></script>
@@ -23,6 +24,7 @@
 		<script src="js/game.js"></script>
 		
 		<script>
+		
 			var lastTime = ( new Date() ).getTime();
 
 			var WINDOW = {
@@ -90,10 +92,8 @@
 			GAME.Resize( WINDOW.ms_Width, WINDOW.ms_Height );
 
 			var render = function () {
-
 				requestAnimationFrame( render );
 				GAME.Update();
-
 			};
 
 			render();

@@ -15,11 +15,6 @@ app.get('/', function(request, response) {
     response.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Starts the server
-server.listen(8050, function() {
-    console.log('Starting server on port 8050');
-});
-
 const players = {};
 
 // Add the WebSocket handlers
@@ -31,4 +26,10 @@ io.on('connection', function (socket) {
         };
     });
 
+});
+
+
+// Starts the server
+server.listen(8050, function() {
+    console.log('Starting server on port 8050');
 });
