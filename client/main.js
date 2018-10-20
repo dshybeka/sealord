@@ -66,11 +66,14 @@ app.controller('basicController', function($scope) {
 
     gyro.frequency = 5;
     gyro.startTracking(function (o) {
+        
+        $("#wheel").css('transform', 'rotate('+ o.y * 10 +'deg)');
 
         if (o.y < 0) {
             socket.emit('left', {'username': username, diff: Math.abs(o.y)});
             console.log("New left: " + Math.abs(o.y));
             $("#left").text("Left" + Math.abs(o.y));
+            
         }
 
         if (o.y > 0) {
