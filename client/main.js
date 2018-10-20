@@ -6,7 +6,7 @@ $( document ).ready(function() {
     // client.pi();
 });
 
-var socket = {};
+var socket = io.connect('https://sealord-dshybeka.c9users.io');
 var username = "";
 
 var app = angular.module('seaLord', []);
@@ -26,10 +26,8 @@ app.controller('basicController', function($scope) {
        username = $scope.username;
 
        $scope.fightStarted = true;
-
-       socket = io.connect('https://sealord-dshybeka.c9users.io');
-
-       console.log(client);
+       
+       var socket = io.connect('https://sealord-dshybeka.c9users.io');
 
        client.start();
        

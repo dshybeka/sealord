@@ -45,6 +45,28 @@ var GAME =
 		this.InitializeScene();
 		
 		this.g_events.on("login", function(data) {
+		    GAME.NewUserLogin(data);
+		});
+		
+		GAME.NewUserLogin({username: "test"})
+		
+		this.g_events.on("logout", function(data) {
+			
+			console.log("user left the game:" + data.username);
+			
+			GAME.g_groupShips.delete(data.username);
+			GAME.g_blackPearls.delete(data.username);
+			GAME.g_groupShips.delete(data.username);
+			GAME.g_blackPearlShips.delete(data.username);
+			GAME.g_commands.delete(data.username);
+			GAME.g_captains.delete(data.username);
+		});
+
+		
+		this.InitCommands();
+	},
+	
+	NewUserLogin: function(data) {
 			console.log("new user joined:" + data.username);
 			
 					
@@ -82,11 +104,7 @@ var GAME =
 			GAME.g_blackPearls.set(data.username, object);
 			GAME.g_captains.set(data.username, "health");
 		 });
-		});
-
-		
-		this.InitCommands();
-	},
+		},
 	
 	InitializeLoader: function() {
 		this.g_loader = new THREE.LoadingManager();
@@ -387,39 +405,46 @@ var GAME =
 				var key = event.which;
 				if( key >= LEFT && key <= DOWN ) {
 					switch( key ) {
-						case UP : GAME.g_commands.get(data.username).states.up = action ; break ;
-						case RIGHT : GAME.g_commands.get(data.username).states.right = action ; break ;
-						case DOWN : handleFire() ; break ;
-						case LEFT : GAME.g_commands.get(data.username).states.left = action ; break ;
+						case UP : GAME.g_commands.get("test").states.up = action ; break ;
+						case RIGHT : GAME.g_commands.get("test").states.right = action ; break ;
+						case DOWN : handleFire({username: "test"}) ; break ;
+						case LEFT : GAME.g_commands.get("test").states.left = action ; break ;
 					}
 				}
 			}
 		}
 		
 		var eventHandler = function eventHandler( action, data ) {
-					switch( action ) {
-						case 'speed up' : GAME.g_commands.get(data.username).states.up = true ; break ;
+			
+					
+					var comm = GAME.g_commands.get(data.username);
+					
+					if(comm) {
+						switch( action ) {
+						case 'speed up' : comm.states.up = true ; break ;
 						case 'right' : {
-							GAME.g_commands.get(data.username).states.right = true;
-							GAME.g_commands.get(data.username).states.left = false;
+							comm.states.right = true;
+							comm.states.left = false;
 							break ;
 						}
-						case 'speed down' : GAME.g_commands.get(data.username).states.up = false ; break ;
+						case 'speed down' : comm.states.up = false ; break ;
 						case 'left' : {
-							GAME.g_commands.get(data.username).states.left = true;
-							GAME.g_commands.get(data.username).states.right = false;
+							comm.states.left = true;
+							comm.states.right = false;
 							break;
 						}
 						case 'center': {
-							GAME.g_commands.get(data.username).states.left = false;
-							GAME.g_commands.get(data.username).states.right = false;
+							comm.states.left = false;
+							comm.right = false;
 							break;
 						}
 							
 					}
+					}
+
 		}
 		
-		var handleFire = function () {
+		var handleFire = function (data) {
         	
         	Physijs.scripts.worker = 'physijs_worker.js';
 			Physijs.scripts.ammo = 'ammo.js';
@@ -430,7 +455,6 @@ var GAME =
 	
 			var geometry = new THREE.SphereGeometry( 5, 32, 32 );
 			var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-			var yardGeom = new THREE.SphereGeometry( 5, 40, 40 )
 	
 			for (var i = 1; i <= 4; i++) {
 	
@@ -439,14 +463,15 @@ var GAME =
 							material
 						);
 				sphere.collisions = 1;
-				sphere.position.set(GAME.g_groupShip.position.x -35, GAME.g_groupShip.position.y + 25,GAME.g_groupShip.position.z -i*20);
+				var shipPosition = GAME.g_groupShips.get(data.username).position;
+				sphere.position.set(shipPosition.x -35, shipPosition.y + 25, shipPosition.z -i*20);
 	
 				var sphere2 = new Physijs.BoxMesh(
 							geometry,
 							material
 						);
 				sphere2.collisions = 1;
-				sphere2.position.set(GAME.g_groupShip.position.x + 35, GAME.g_groupShip.position.y + 25, GAME.g_groupShip.position.z -i*20);
+				sphere2.position.set(shipPosition.x + 35, shipPosition.y + 25, shipPosition.z -i*20);
 	
 				demo.g_scene.add(sphere );
 				demo.g_scene.add(sphere2);
@@ -454,7 +479,7 @@ var GAME =
         }
 		
 		this.g_events.on('fire', function (data) {
-           eventHandler('fire', data);
+           handleFire(data);
         });
 		
 		this.g_events.on('speed up', function (data) {

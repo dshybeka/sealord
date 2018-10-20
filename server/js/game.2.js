@@ -24,7 +24,8 @@ var GAME =
 		
 		document.body.appendChild( this.g_renderer.domElement );
 
-		this.g_scene = new THREE.Scene();
+		this.g_scene = new Physijs.Scene;
+		this.g_scene.setGravity(new THREE.Vector3( 0, -30, 0 ));
 		
 		this.g_camera = new THREE.PerspectiveCamera( 55.0, WINDOW.ms_Width / WINDOW.ms_Height, 0.5, 1000000 );
 		this.g_camera.position.set( 0, 350, 800 );
@@ -44,11 +45,31 @@ var GAME =
 		this.InitializeLoader();
 		this.InitializeScene();
 		
-		this.g_events.on("login", function(data) {
+		this.g_events.on("login", GAME.NewUserLogin);
+		
+		GAME.NewUserLogin({username: "test"})
+		
+		this.g_events.on("logout", function(data) {
+			
+			console.log("user left the game:" + data.username);
+			
+			GAME.g_groupShips.delete(data.username);
+		});
+
+        	Physijs.scripts.worker = 'third-party/physijs_worker.js';
+			Physijs.scripts.ammo = 'third-party/ammo.js';
+		
+		this.InitCommands();
+	},
+	
+	NewUserLogin: function(data) {
 			console.log("new user joined:" + data.username);
 			
 					
 			var g_groupShip = new THREE.Object3D();
+			
+			var ship = 
+			
 			var g_blackPearlShip = new THREE.Object3D();
 			GAME.g_scene.add(g_groupShip );
 			g_groupShip.add(g_blackPearlShip );
@@ -80,13 +101,9 @@ var GAME =
 
 			GAME.g_blackPearlShips.get(data.username).add( object );
 			GAME.g_blackPearls.set(data.username, object);
-			GAME.g_captains.set(data.us)
+			GAME.g_captains.set(data.username, "health");
 		 });
-		});
-
-		
-		this.InitCommands();
-	},
+		},
 	
 	InitializeLoader: function() {
 		this.g_loader = new THREE.LoadingManager();
@@ -387,10 +404,10 @@ var GAME =
 				var key = event.which;
 				if( key >= LEFT && key <= DOWN ) {
 					switch( key ) {
-						case UP : GAME.g_commands.get(data.username).states.up = action ; break ;
-						case RIGHT : GAME.g_commands.get(data.username).states.right = action ; break ;
-						case DOWN : handleFire() ; break ;
-						case LEFT : GAME.g_commands.get(data.username).states.left = action ; break ;
+						case UP : GAME.g_commands.get("test").states.up = action ; break ;
+						case RIGHT : GAME.g_commands.get("test").states.right = action ; break ;
+						case DOWN : handleFire({username: "test"}) ; break ;
+						case LEFT : GAME.g_commands.get("test").states.left = action ; break ;
 					}
 				}
 			}
@@ -419,18 +436,19 @@ var GAME =
 					}
 		}
 		
-		var handleFire = function () {
-        	
-        	Physijs.scripts.worker = 'physijs_worker.js';
-			Physijs.scripts.ammo = 'ammo.js';
+		var handleFire = function (data) {
 						
-		
-			GAME.yards = [];
+			if (GAME.yards == undefined) {
+				GAME.yards = {};
+			}
+			
+			GAME.yards.get(data.username);
+			
+			
 			var demo = GAME;
 	
 			var geometry = new THREE.SphereGeometry( 5, 32, 32 );
 			var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-			var yardGeom = new THREE.SphereGeometry( 5, 40, 40 )
 	
 			for (var i = 1; i <= 4; i++) {
 	
@@ -439,14 +457,15 @@ var GAME =
 							material
 						);
 				sphere.collisions = 1;
-				sphere.position.set(GAME.g_groupShip.position.x -35, GAME.g_groupShip.position.y + 25,GAME.g_groupShip.position.z -i*20);
+				var shipPosition = GAME.g_groupShips.get(data.username).position;
+				sphere.position.set(shipPosition.x -35, shipPosition.y + 25, shipPosition.z -i*20);
 	
 				var sphere2 = new Physijs.BoxMesh(
 							geometry,
 							material
 						);
 				sphere2.collisions = 1;
-				sphere2.position.set(GAME.g_groupShip.position.x + 35, GAME.g_groupShip.position.y + 25, GAME.g_groupShip.position.z -i*20);
+				sphere2.position.set(shipPosition.x + 35, shipPosition.y + 25, shipPosition.z -i*20);
 	
 				demo.g_scene.add(sphere );
 				demo.g_scene.add(sphere2);
@@ -454,7 +473,7 @@ var GAME =
         }
 		
 		this.g_events.on('fire', function (data) {
-           eventHandler('fire', data);
+           handleFire(data);
         });
 		
 		this.g_events.on('speed up', function (data) {

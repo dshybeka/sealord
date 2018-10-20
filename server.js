@@ -25,18 +25,15 @@ server.listen(8080, function () {
     console.log('Starting server on port 8050');
 });
 
-const players = {};
-
 // Add the WebSocket handlers
 io.on('connection', function (socket) {
 
     console.log('Connected!');
+    
+    
     socket.on('login', function (event) {
         socket.broadcast.emit('login', event);
         console.log('New player id: ' + event)
-        players[socket.id] = {
-            name: 'socket.id'
-        };
     });
 
     socket.on('fire', function (event) {
