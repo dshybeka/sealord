@@ -3,10 +3,10 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const app = express();
-const server = http.createServer(app);
-const io = require('socket.io')(server);
+const server = http.createServer().listen(process.env.PORT, process.env.IP);
+const io = require('socket.io');
 
-app.set('port', 8050);
+//app.set('port', 8050);
 app.use('/public', express.static(__dirname + '/public'));
 app.use('/shared', express.static(__dirname + '/shared'));
 
@@ -15,15 +15,21 @@ app.get('/', function (request, response) {
     response.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Starts the server
-server.listen(8050, function () {
-    console.log('Starting server on port 8050');
+app.get('/login', function (request, response) {
+    response.sendFile(path.join(__dirname, 'client/index.html'));
 });
+
+var socket = io.listen(server);
+
+// Starts the server
+// server.listen(8050, function () {
+//     console.log('Starting server on port 8050');
+// });
 
 const players = {};
 
 // Add the WebSocket handlers
-io.on('connection', function (socket) {
+socket.sockets.on('connection', function (socket) {
 
     console.log('Connected!');
     socket.on('new player', function () {

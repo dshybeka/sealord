@@ -24,7 +24,7 @@ app.controller('basicController', function($scope) {
        
        $scope.fightStarted = true;
        
-       $scope.socket = io('https://sealord-dshybeka.c9users.io/server');
+       $scope.socket = io('https://sealord-dshybeka.c9users.io');
        
        console.log($scope.socket);
        
