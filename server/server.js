@@ -7,7 +7,8 @@ const server = http.createServer(app);
 const io = require('socket.io')(server);
 
 app.set('port', 8050);
-app.use(express.static('public'));
+app.use('/public', express.static(__dirname + '/public'));
+app.use('/shared', express.static(__dirname + '/shared'));
 
 // Routing
 app.get('/', function(request, response) {

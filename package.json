@@ -1,0 +1,23 @@
+{
+  "name": "sealord",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dshybeka/sealord.git"
+  },
+  "author": "Team",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dshybeka/sealord/issues"
+  },
+  "homepage": "https://github.com/dshybeka/sealord#readme",
+  "description": "Hackathon 2018 - Life as a game",
+  "dependencies": {
+    "express": "^4.16.4",
+    "socket.io": "^2.1.1"
+  }
+}
