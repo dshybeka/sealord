@@ -69,4 +69,8 @@ io.on('connection', function (socket) {
         console.log('Player [' + socket.id + '] RIGHT COMMAND!')
     });
 
+    socket.on('center', function (event) {
+        socket.broadcast.emit('center', event);
+    });
+
 });
