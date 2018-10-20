@@ -74,10 +74,11 @@ client = (function() {
           }
         
           console.log("text " + noteContent);
-          continueListening(recognition);
         }
         
-        continueListening(recognition);
+        recognition.onend = function() {
+            recognition.start();
+        };
         
         $('#start-record-btn').on('click', function(e) {
           recognition.start();
@@ -85,26 +86,6 @@ client = (function() {
         $('#stop-record-btn').on('click', function(e) {
           recognition.stop();
         });
-    }
-    
-    var curInterval = undefined;
-    
-    function continueListening(recognition) {
-        
-        if (curInterval !== undefined) {
-            clearInterval(curInterval)
-        }
-        
-        // curInterval = setInterval(function() { 
-            
-        //     try {
-                
-        //         recognition.start();
-        //     } catch(e) {
-        //         console.warn("not started")
-        //     }
-
-        // }, 1000);
     }
     
     self.pi = function() {

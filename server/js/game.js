@@ -82,8 +82,8 @@ var GAME =
 				}
 			}
 
-			this.g_blackPearlShip.add( object );
-			this.g_blackPearl = object;
+			GAME.g_blackPearlShip.add( object );
+			GAME.g_blackPearl = object;
 		} );
 		
 		
@@ -110,6 +110,62 @@ var GAME =
 			GEOMETRY_SIZE : gsize,
 			RESOLUTION : res
 		} );
+
+	},
+	
+	Update : function () {
+
+		// Update camera position
+		if( this.g_camera.position.y < 0.0 ) {
+			this.ms_Camera.position.y = 2.0;
+		}
+
+		// Update black ship displacements
+		//this.UpdateCommands();
+		//this.g_groupShip.rotation.y += this.g_commands.movements.angle;
+		//this.g_blackPearlShip.rotation.z = -this.g_commands.movements.angle * 10.0;
+		//this.g_blackPearlShip.rotation.x = this.g_ommands.movements.speed * 0.1;
+		//var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShip.rotation).multiplyScalar( 10.0 * this.g_commands.movements.speed );
+		//this.g_groupShip.position.add( shipDisplacement );
+
+		//var currentTime = new Date().getTime();
+		//this.g_ocean.deltaTime = ( currentTime - lastTime ) / 1000 || 0.0;
+		//lastTime = currentTime;
+
+		// Update black ship movements
+		//if( this.g_blackPearl !== null )
+		//{
+		//	var animationRatio = 1.0 + this.g_commands.movements.speed * 1.0;
+		//	this.g_blackPearl.rotation.y = Math.cos( currentTime * 0.0008 ) * 0.05 - 0.025;
+	//		this.g_blackPearl.rotation.x = Math.sin( currentTime * 0.001154 + 0.78 ) * 0.1 + 0.05;
+	//	}
+
+		// Render ocean reflection
+		this.g_ocean.render();
+
+		// Updade clouds
+		this.g_cloudShader.update();
+
+		// Update ocean data
+		this.g_ocean.update();
+		
+		//this.ms_Controls.update();
+		this.Display();
+
+	},
+	
+		Display : function () {
+
+		this.g_renderer.render( this.g_scene, this.g_camera );
+
+	},
+	
+		Resize : function ( inWidth, inHeight ) {
+
+		this.g_camera.aspect = inWidth / inHeight;
+		this.g_camera.updateProjectionMatrix();
+		this.g_renderer.setSize( inWidth, inHeight );
+		this.Display();
 
 	}
 }
