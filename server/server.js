@@ -9,7 +9,7 @@ const server = http.createServer(app);
 const io = require('socket.io')(server);
 
 app.set('port', 8050);
-app.use(express.static(__dirname + '/third-party/js'));
+app.use(express.static('public'));
 
 // Routing
 app.get('/', function(request, response) {
