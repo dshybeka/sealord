@@ -32,8 +32,6 @@ app.controller('basicController', function($scope) {
        console.log(client);
        
        client.start();
-
-       
    };
    
    $scope.stop = function() {

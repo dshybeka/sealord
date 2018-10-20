@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="container" ng-controller="basicController">
-        <div class="row justify-content-md-center"ng-show="!fightStarted">
+        <div class="row justify-content-md-center"ng-show="!fightStarted" style="margin-top: 50px;">
                 <div class="col-md-6">
                     <h1>Welcome to the SeaLord</h1>
     
@@ -46,9 +46,9 @@
     
         <div class="row justify-content-md-center" ng-show="fightStarted">
             <div class="col-md-6">
-            <h3>Kill your enemies</h1>
-            <div>
-                <button ng-click="stop()">STOP</button>
+            <h3>KILL EVERYONE!</h1>
+            <div class="form-group">
+                <button class="btn btn-warning"  ng-click="stop()">Leave the Battlefield.</button>
             </div>
             </div>
         </div>
@@ -57,8 +57,6 @@
     
     <div>
         <p id="instr"></p>
-        <button id="start-record-btn">Start</button>
-        <button id="stop-record-btn">Stop</button>
     </div>
     
     <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
