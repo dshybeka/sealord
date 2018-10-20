@@ -24,7 +24,7 @@ const players = {};
 
 // Add the WebSocket handlers
 io.on('connection', function (socket) {
-
+    console.log('Connected!');
     socket.on('new player', function () {
         players[socket.id] = {
             name: 'Capitan'
