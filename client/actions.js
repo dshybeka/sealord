@@ -4,6 +4,8 @@ client = (function() {
     
     var self = this;
     
+    self.recognition = {};
+    
     var instructions = $("#instr");
 
     function init() {
@@ -12,14 +14,14 @@ client = (function() {
         var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
         var SpeechRecognitionEvent = SpeechRecognitionEvent || webkitSpeechRecognitionEvent
         
-        var recognition = new SpeechRecognition();
+        self.recognition = new SpeechRecognition();
         var speechRecognitionList = new SpeechGrammarList();
         // recognition.continuous = true;
-        recognition.lang = 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
+        self.recognition.lang = 'en-US';
+        self.recognition.interimResults = false;
+        self.recognition.maxAlternatives = 1;
         
-        initSpeech(recognition);
+        initSpeech(self.recognition);
     }
     
     
@@ -65,8 +67,6 @@ client = (function() {
             recognition.start();
         };
         
-        recognition.start();
-        
         // $('#start-record-btn').on('click', function(e) {
         //   recognition.start();
         // });
@@ -75,10 +75,15 @@ client = (function() {
         // });
     }
     
-    self.pi = function() {
-        console.log("Pi!");
+    self.start = function() {
+        console.log("Start recognition!");
         instructions.text("ho-ho-ho");
         self.recognition.start();
+    }
+    
+    self.stop = function() {
+      console.log("Stop recognition!");
+      self.recognition.stop();
     }
     
     init();

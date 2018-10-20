@@ -7,6 +7,7 @@ $( document ).ready(function() {
 });
 
 var socket = {};
+var username = "";
 
 var app = angular.module('seaLord', []);
 app.controller('basicController', function($scope) {
@@ -21,8 +22,8 @@ app.controller('basicController', function($scope) {
    
    $scope.start = function() {
        console.log("START");
-       console.log($scope.username);
-       console.log($scope.shiptype);
+       
+       username = $scope.username;
        
        $scope.fightStarted = true;
        
@@ -30,7 +31,7 @@ app.controller('basicController', function($scope) {
        
        console.log(client);
        
-       client.pi();
+       client.start();
 
        
    };
@@ -39,6 +40,7 @@ app.controller('basicController', function($scope) {
        console.log("STOP");
        
        socket.close();
+        client.stop();
        $scope.fightStarted = false;
    };
    

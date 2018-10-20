@@ -12,22 +12,22 @@ nlu = (function() {
     
     self.fire = function(text) {
         console.log("fire!");
-        socket.emit('fire', { message : "client emit" });
+        socket.emit('fire',  {'username' : username });
     }
     
     self.distance = function(text) {
         console.log("distance!");
-        socket.emit('distance', { message : "client emit" });
+        socket.emit('distance', {'username' : username });
     }
     
     self.speedUp = function(text) {
         console.log("speed up!");
-        socket.emit('speedUp', { message : "client emit" });
+        socket.emit('speed up',  {'username' : username });
     }
     
     self.speedDown = function(text) {
         console.log("speed up!");
-        socket.emit('speedDown', { message : "client emit" });
+        socket.emit('speed down',  {'username' : username });
     }
     
     self.handle = function(text) {
