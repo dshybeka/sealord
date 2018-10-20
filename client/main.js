@@ -32,6 +32,8 @@ app.controller('basicController', function($scope) {
        console.log(client);
        
        client.start();
+       
+       socket.emit('login', {'username': username});
    };
    
    $scope.stop = function() {

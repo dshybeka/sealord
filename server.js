@@ -30,8 +30,8 @@ const players = {};
 io.on('connection', function (socket) {
 
     console.log('Connected!');
-    socket.on('new player', function () {
-        console.log('New player id: ' + socket.id)
+    socket.on('login', function (event) {
+        console.log('New player id: ' + event)
         players[socket.id] = {
             name: 'socket.id'
         };

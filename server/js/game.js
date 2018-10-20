@@ -9,6 +9,7 @@ var GAME =
 	g_blackPearls: new Map(),
 	g_groupShips: new Map(),
 	g_blackPearlShips: new Map(),
+	g_controls: new Map(),
 	
 	g_events: null,
 
@@ -50,15 +51,17 @@ var GAME =
 		this.g_camera.lookAt( new THREE.Vector3() );
 		this.g_scene.add( this.g_camera );
 		
-		this.g_controls = new THREE.OrbitControls( this.g_camera, this.g_renderer.domElement );
-		this.g_controls.userPan = false;
-		this.g_controls.target.set( 0, 100.0, 0 );
-		this.g_controls.noKeys = true;
-		this.g_controls.userPanSpeed = 0;
-		this.g_controls.minDistance = 0;
-		this.g_controls.maxDistance = 20000.0;
-		this.g_controls.minPolarAngle = 0;
-		this.g_controls.maxPolarAngle = Math.PI * 0.75;
+		var = g_controls = new THREE.OrbitControls( this.g_camera, this.g_renderer.domElement );
+		g_controls.userPan = false;
+		g_controls.target.set( 0, 100.0, 0 );
+		g_controls.noKeys = true;
+		g_controls.userPanSpeed = 0;
+		g_controls.minDistance = 0;
+		g_controls.maxDistance = 20000.0;
+		g_controls.minPolarAngle = 0;
+		g_controls.maxPolarAngle = Math.PI * 0.75;
+		
+		this.g_controls.set("1", g_controls)
 		
 		this.InitializeLoader();
 		this.InitializeScene();
@@ -412,5 +415,6 @@ var GAME =
 
 		$( document ).keydown( keyHandler( true ) );
 		$( document ).keyup( keyHandler( false ) );
+		
 	}
 }
