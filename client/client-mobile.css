@@ -1,22 +1,4 @@
 /* Landscape */
-@media only screen
-and (min-device-width: 320px)
-and (max-device-width: 480px)
-and (-webkit-min-device-pixel-ratio: 2)
-and (orientation: landscape) {
-    body {
-        background-color: lightblue;
-    }
-}
-
-body.mobile-body {
-    color: #ffd900;
-    background: red;
-    height: 100%;
-    margin: 0;
-    width: 100%;
-}
-
 @media screen and (min-width: 320px) and (max-width: 767px) and (orientation: landscape) {
     html {
         transform: rotate(-90deg);
