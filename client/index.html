@@ -5,9 +5,37 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>SeaLord</title>
     <link rel="stylesheet" href="">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
 </head>
 <body>
-    <h1>Welcome, SeaLord</h1>
+    <h1>Hello, Captain</h1>
     
+    <form>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <input class="mdl-textfield__input" type="text" name="username" id="username">
+            <label class="mdl-textfield__label" for="username">What is your name, captain?</label>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
+            <label class="mdl-textfield__label" for="shiptype">What is your name, captain?</label>
+            <select name="shiptype" id="shiptype">
+                <option value="1">Type1</option>
+                <option value="2">Type2</option>
+                <option value="3">Type3</option>
+            </select>
+        </div>
+        <div>
+        <button class="mdl-button mdl-js-button mdl-button--raised">
+          FIGHT!
+        </button>
+        </div>
+    </form>
+    
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="actions.js"></script>
+    <script type="text/javascript" src="main.js"></script>
 </body>
+
+
 </html>
