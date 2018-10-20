@@ -74,10 +74,10 @@ var GAME =
 					.6, // medium friction
 					.3 // low restitution
 				);
-				// material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping;
-				// material.map.repeat.set( .5, .5 );
-			var mesh	= new Physijs.BoxMesh( geometry, material );
-			var mesh2	= new Physijs.BoxMesh( geometry, material );
+				material.wrapS = material.wrapT = THREE.RepeatWrapping;
+				// material.set( .5, .5 );
+			var mesh	= new Physijs.BoxMesh( geometry, new THREE.MeshBasicMaterial() );
+			var mesh2	= new Physijs.BoxMesh( geometry, new THREE.MeshBasicMaterial() );
 			
 			mesh.collisions = 0;
 			mesh.setCcdMotionThreshold(1);
@@ -344,25 +344,36 @@ var GAME =
 			var mesh1 = yards[0];
 			var mesh2 = yards[2];
 			
-			if (GAME.delta == undefined) {
+			// if (GAME.delta == undefined) {
 				
-				GAME.delta = mesh2.position.x - mesh1.position.x;
-			}
+			// 	GAME.delta = mesh2.position.x - mesh1.position.x;
+			// }
 			
-			if (GAME.delta2 == undefined) {
+			// if (GAME.delta2 == undefined) {
 				
-				GAME.delta2 = mesh2.position.z - mesh1.position.z;
-			}
+			// 	GAME.delta2 = mesh2.position.z - mesh1.position.z;
+			// }
 			
-			console.log("GAME.delta " + GAME.delta);
-			console.log("GAME.delta2 " + GAME.delta2);
+			// console.log("GAME.delta " + GAME.delta);
 			
-			mesh1.position.x = mesh1.position.x + GAME.delta;
-			mesh1.position.z += mesh1.position.z + GAME.delta2;
+			// console.log("GAME.delta " + GAME.delta);
+			// console.log("GAME.delta2 " + GAME.delta2);
 			
-		// 		for (var i = 0; i < yards.length - 1; i+=2) {
+			// mesh1.position.x += 2;
+			
+			
+			
+				for (var i = 0; i < yards.length; i+=1) {
 					
-		// 			var mesh1 = yards[i]
+					var mesh1 = yards[i]
+					
+					if (mesh1.round > 130) {
+						
+						console.log("remove");
+						GAME.g_scene.remove(mesh1);
+						continue;
+					}
+					mesh1.round = mesh1.round + 1;
 		// 			var mesh2 = yards[i + 1]
 		
 					
@@ -372,22 +383,33 @@ var GAME =
 		// 			 direction.subVectors(vect1, vect2);
 		// 			 //var meshDisplacement = ()
 
+// console.log("delta1 " + mesh1.delta1);
+// console.log("delta2 " + mesh1.delta2);
+
+			//mesh1.position.x = mesh1.position.x + mesh1.delta1;
+			//mesh1.position.z = mesh1.position.z + mesh1.delta2;
+			mesh1.rotation.y = mesh1.delta2;
+			mesh1.rotation.x = 0;
+			mesh1.rotation.z = 0;
+			
+			var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(mesh1.rotation).multiplyScalar( 10.0 );
+			mesh1.position.add(shipDisplacement);
 
 
 		// var shipDisplacement = (direction).multiplyScalar( 2 );
 		// mesh1.position.add( shipDisplacement.normalize() );	
 		// mesh2.position.add( shipDisplacement.normalize()  );	
-		// 			// this.g_groupShips.get(username).rotation.y += this.g_commands.get(username).movements.angle;
-		// 			// this.g_blackPearlShips.get(username).rotation.z = -this.g_commands.get(username).movements.angle * 10.0;
-		// 			if (i % 2 == 0) {
+					// this.g_groupShips.get(username).rotation.y += this.g_commands.get(username).movements.angle;
+					// this.g_blackPearlShips.get(username).rotation.z = -this.g_commands.get(username).movements.angle * 10.0;
+					if (i % 2 == 0) {
 						
-		// 				//mesh.position.x += -2;
-		// 				// mesh.position.z += -2;
-		// 			} else {
+						//mesh.position.x += -2;
+						// mesh.position.z += -2;
+					} else {
 						
-		// 				//mesh.position.x += 2;
-		// 			}
-		// 		}
+						//mesh.position.x += 2;
+					}
+				}
 			}
 		}
 
@@ -412,6 +434,17 @@ var GAME =
 			}
 			
 			this.g_controls.update();
+			
+			if (yards != undefined){
+				for (var i = 0; i < yards.length; i+=1) {
+					
+					// var collis = this.g_groupShips.get(username).intersectObjects(yards[i]);
+					
+					// if (collis) {
+					// 	console.log("COLLIS");
+					// }
+				}
+			}
 		}
 
 
@@ -539,7 +572,7 @@ var GAME =
 			var demo = GAME;
 	
 			var geometry = new THREE.SphereGeometry( 5, 32, 32 );
-			var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+			var material = new THREE.MeshBasicMaterial( {color: 0x000000} );
 	
 			for (var i = 1; i <= 4; i++) {
 	
@@ -552,7 +585,6 @@ var GAME =
 				var shipRotation = GAME.g_groupShips.get(data.username).rotation;
 				console.log("shipPosition ", GAME.g_groupShips.get(data.username));
 				sphere.position.set(shipPosition.x -35, shipPosition.y + 25, shipPosition.z -i*20);
-				sphere.rotation.set(shipRotation.x, shipRotation.y, shipRotation.z);
 				sphere.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
 				    console.log("COLLITION");
 				});
@@ -563,16 +595,36 @@ var GAME =
 						);
 				sphere2.collisions = 1;
 				sphere2.position.set(shipPosition.x + 35, shipPosition.y + 25, shipPosition.z -i*20);
-				sphere2.rotation.set(shipRotation.x, shipRotation.y, shipRotation.z);
 				sphere2.addEventListener( 'collision', function( other_object, relative_velocity, relative_rotation, contact_normal ) {
 				    console.log("COLLITION");
 				});
 	
+		
+		// console.log("sphere1.position.x " + sphere2.position.x + " | " +sphere2.position.z);
+	
+		// console.log("sphere2.position.x " + sphere.position.x + " | " +sphere.position.z);
+
+				var delta = 2;
+				
+				var delta2 = shipRotation.y;
+				
+				sphere.delta1 = delta;
+				sphere.delta2 = delta2 + 1.57;
+				sphere.round = 0;
+				
+				sphere2.delta1 = delta;
+				if (sphere.delta2 < 0) {
+					sphere2.delta2 = sphere.delta2+3.14;
+				} else {
+				    sphere2.delta2 = sphere.delta2-3.14;	
+				}
+				
+				sphere2.round = 0;
 	
 				yards.push(sphere);
 				yards.push(sphere2);
 				
-				demo.g_scene.add(sphere );
+				demo.g_scene.add(sphere);
 				demo.g_scene.add(sphere2);
 			}
 			
