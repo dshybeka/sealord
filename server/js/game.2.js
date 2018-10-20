@@ -450,7 +450,7 @@ var GAME =
 			this.g_blackPearlShips.get(username).rotation.x = this.g_commands.get(username).movements.speed * 0.1;
 			var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShips.get(username).rotation).multiplyScalar( 10.0 * this.g_commands.get(username).movements.speed );
 			this.g_groupShips.get(username).position.add( shipDisplacement );
-			this.g_meshes.get(username).position.add( shipDisplacement );
+			// this.g_meshes.get(username).position.add( shipDisplacement );
 			
 			if( this.g_blackPearls.get(username))
 				{

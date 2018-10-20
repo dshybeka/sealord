@@ -25,7 +25,10 @@ var GAME =
 		
 		document.body.appendChild( this.g_renderer.domElement );
 
-		this.g_scene = new THREE.Scene();
+		// this.g_scene = new THREE.Scene();
+		
+				this.g_scene = new Physijs.Scene;
+		this.g_scene.setGravity(new THREE.Vector3( 0, -30, 0 ));
 		
 		this.g_camera = new THREE.PerspectiveCamera( 55.0, WINDOW.ms_Width / WINDOW.ms_Height, 0.5, 1000000 );
 		this.g_camera.position.set( 0, 350, 800 );
@@ -372,6 +375,8 @@ if (GAME.yards != undefined) {
 		
 
 		this.Display();
+		
+		GAME.g_scene.simulate();
 
 	},
 	
