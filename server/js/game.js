@@ -399,9 +399,23 @@ var GAME =
 		var eventHandler = function eventHandler( action, data ) {
 					switch( action ) {
 						case 'speed up' : GAME.g_commands.get(data.username).states.up = true ; break ;
-						case 'right' : GAME.g_commands.get(data.username).states.right = true ; break ;
+						case 'right' : {
+							GAME.g_commands.get(data.username).states.right = true;
+							GAME.g_commands.get(data.username).states.left = false;
+							break ;
+						}
 						case 'speed down' : GAME.g_commands.get(data.username).states.up = false ; break ;
-						case 'left' : GAME.g_commands.get(data.username).states.left = true ; break ;
+						case 'left' : {
+							GAME.g_commands.get(data.username).states.left = true;
+							GAME.g_commands.get(data.username).states.right = false;
+							break;
+						}
+						case 'center': {
+							GAME.g_commands.get(data.username).states.left = false;
+							GAME.g_commands.get(data.username).states.right = false;
+							break;
+						}
+							
 					}
 		}
 		
@@ -423,6 +437,9 @@ var GAME =
         
         this.g_events.on('left', function (data) {
            eventHandler('left', data);
+        });
+        this.g_events.on('center', function (data) {
+           eventHandler('center', data);
         });
 
 		$( document ).keydown( keyHandler( true ) );

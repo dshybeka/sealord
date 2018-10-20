@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="container" ng-controller="basicController">
-        <div class="row justify-content-md-center"ng-show="!fightStarted" style="margin-top: 50px;">
+        <div class="row justify-content-md-center" ng-show="!fightStarted" style="margin-top: 50px;">
                 <div class="col-md-6">
                     <h1>Welcome to the SeaLord</h1>
     
@@ -46,15 +46,15 @@
     
         <div class="row justify-content-md-center" ng-show="fightStarted">
             <div class="col-md-6">
-            <h3>KILL EVERYONE!</h1>
-            
-            <div>
-                <div id="wheel"></div>
+                <h3>KILL EVERYONE!</h1>
                 
-            </<div>
-            <div class="form-group">
-                <button class="btn btn-warning"  ng-click="stop()">Run away like a rat</button>
-            </div>
+                <div class="form-group">
+                    <div id="wheel"></div>
+                    
+                </<div>
+                <div class="form-group">
+                    <button class="btn btn-warning"  ng-click="stop()">Run away like a rat</button>
+                </div>
             </div>
         </div>
     </div></div>
@@ -74,7 +74,11 @@
     
     <style>
         #wheel{
-            background: iamge('https://fashion-stickers.ru/36225-large_default/shturval-korablja.jpg');
+            background: url('https://fashion-stickers.ru/36225-large_default/shturval-korablja.jpg');
+            background-size: contain;
+            height: 200px;
+            width: 200px;
+            margin: 20px 0;
         }
     </style>
 </body>
