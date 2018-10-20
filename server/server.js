@@ -3,7 +3,6 @@
 const express = require('express');
 const http = require('http');
 const path = require('path');
-const socketIO = require('socket.io');
 const app = express();
 const server = http.createServer(app);
 const io = require('socket.io')(server);
@@ -23,4 +22,5 @@ server.listen(8050, function() {
 
 // Add the WebSocket handlers
 io.on('connection', function(socket) {
+    console.log('Started');
 });
