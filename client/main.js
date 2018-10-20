@@ -24,7 +24,11 @@ app.controller('basicController', function($scope) {
        
        $scope.fightStarted = true;
        
-       $scope.socket = io('//sealord-dshybeka.c9users.io:8050/server/');
+       $scope.socket = io('https://sealord-dshybeka.c9users.io/server');
+       
+       console.log($scope.socket);
+       
+       
        $scope.socket.on('connect', function(){
            console.log("CONNECTED");
        });
@@ -32,6 +36,8 @@ app.controller('basicController', function($scope) {
            console.log("DATA" + data);
        });
        $scope.socket.on('disconnect', function(){});
+       
+       $scope.socket.emit("my other event", { message : "client emit" } );
    };
    
    $scope.stop = function() {

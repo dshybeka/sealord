@@ -5,6 +5,7 @@ var GAME =
 	g_scene : null,
 	g_controls : null,
 	g_ocean : null,
+	g_events: null,
 
 	g_commands : {
 		states : {
@@ -20,6 +21,8 @@ var GAME =
 	},
 	
 	Initialize: function() {
+	    //this.g_events = io.connect('http://localhost/');
+	    
 	    this.g_renderer = new THREE.WebGLRenderer();
 		this.g_renderer.context.getExtension( 'OES_texture_float' );
 		this.g_renderer.context.getExtension( 'OES_texture_float_linear' );
@@ -369,6 +372,19 @@ var GAME =
 				}
 			}
 		}
+		
+		var eventHandler = function eventHandler( action ) {
+					switch( action ) {
+						case 'speed up' : GAME.g_commands.states.up = action ; break ;
+						case RIGHT : GAME.g_commands.states.right = action ; break ;
+						case 'speed down' : GAME.g_commands.states.down = action ; break ;
+						case LEFT : GAME.g_commands.states.left = action ; break ;
+					}
+		}
+		
+		//this.g_events.on('connect', function () {
+        //    g_events.emit('hi!');
+        //});
 
 		$( document ).keydown( keyHandler( true ) );
 		$( document ).keyup( keyHandler( false ) );
