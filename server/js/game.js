@@ -1,18 +1,18 @@
 var GAME =
 {
-	g_renderer : null,
-	g_camera : null,
-	g_scene : null,
-	g_controls : null,
-	g_ocean : null,
+	g_renderer: null,
+	g_camera: null,
+	g_scene: null,
+	g_controls: null,
+	g_ocean: null,
 	
 	g_blackPearls: new Map(),
 	g_groupShips: new Map(),
 	g_blackPearlShips: new Map(),
+	g_commands: new Map(),
+	g_captains: new Map(),
 	
 	g_events: null,
-
-	g_commands : new Map(),
 	
 	Initialize: function() {
 	    this.g_events = io.connect('https://sealord-dshybeka.c9users.io');
@@ -48,38 +48,39 @@ var GAME =
 			console.log("new user joined:" + data.username);
 			
 					
-		var g_groupShip = new THREE.Object3D();
-		var g_blackPearlShip = new THREE.Object3D();
-		GAME.g_scene.add(g_groupShip );
-		g_groupShip.add(g_blackPearlShip );
+			var g_groupShip = new THREE.Object3D();
+			var g_blackPearlShip = new THREE.Object3D();
+			GAME.g_scene.add(g_groupShip );
+			g_groupShip.add(g_blackPearlShip );
 		
-		GAME.g_groupShips.set(data.username, g_groupShip);
-		GAME.g_blackPearlShips.set(data.username, g_blackPearlShip);
-		GAME.g_commands.set(data.username, {
-			states : {
-				up : false,
-				right : false,
-				down : false,
-				left : false
-			},
-			movements : {
-				speed : 0.0,
-				angle : 0.0
-			}
-		});
-		
-		var loader = new THREE.OBJMTLLoader( GAME.g_loader );
-		var g_blackPearl = null;
-		loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl.mtl', function ( object ) {
-			object.position.y = 20.0;
-			if( object.children ) {
-				for( child in object.children ) {
-					object.children[child].material.side = THREE.DoubleSide;
+			GAME.g_groupShips.set(data.username, g_groupShip);
+			GAME.g_blackPearlShips.set(data.username, g_blackPearlShip);
+			GAME.g_commands.set(data.username, {
+				states : {
+					up : false,
+					right : false,
+					down : false,
+					left : false
+				},
+				movements : {
+					speed : 0.0,
+					angle : 0.0
 				}
-			}
+			});
+		
+			var loader = new THREE.OBJMTLLoader( GAME.g_loader );
+			var g_blackPearl = null;
+			loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl.mtl', function ( object ) {
+				object.position.y = 20.0;
+				if( object.children ) {
+					for( child in object.children ) {
+						object.children[child].material.side = THREE.DoubleSide;
+					}
+				}
 
 			GAME.g_blackPearlShips.get(data.username).add( object );
 			GAME.g_blackPearls.set(data.username, object);
+			GAME.g_captains.set(data.username, "health");
 		 });
 		});
 
@@ -286,7 +287,7 @@ var GAME =
 			this.g_camera.position.y = 2.0;
 		}
 
-		// Update black ship displacements
+
 				var currentTime = new Date().getTime();
 		
 		for (var [username, value] of this.g_groupShips) {
@@ -297,7 +298,6 @@ var GAME =
 			var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShips.get(username).rotation).multiplyScalar( 10.0 * this.g_commands.get(username).movements.speed );
 			this.g_groupShips.get(username).position.add( shipDisplacement );
 			
-					// Update black ship movements
 			if( this.g_blackPearls.get(username))
 				{
 				var animationRatio = 1.0 + this.g_commands.get(username).movements.speed * 1.0;
@@ -389,7 +389,7 @@ var GAME =
 					switch( key ) {
 						case UP : GAME.g_commands.get(data.username).states.up = action ; break ;
 						case RIGHT : GAME.g_commands.get(data.username).states.right = action ; break ;
-						case DOWN : GAME.g_commands.get(data.username).states.down = action ; break ;
+						case DOWN : handleFire() ; break ;
 						case LEFT : GAME.g_commands.get(data.username).states.left = action ; break ;
 					}
 				}
@@ -419,6 +419,40 @@ var GAME =
 					}
 		}
 		
+		var handleFire = function () {
+        	
+        	Physijs.scripts.worker = 'physijs_worker.js';
+			Physijs.scripts.ammo = 'ammo.js';
+						
+		
+			GAME.yards = [];
+			var demo = GAME;
+	
+			var geometry = new THREE.SphereGeometry( 5, 32, 32 );
+			var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+			var yardGeom = new THREE.SphereGeometry( 5, 40, 40 )
+	
+			for (var i = 1; i <= 4; i++) {
+	
+				var sphere = new Physijs.BoxMesh(
+							geometry,
+							material
+						);
+				sphere.collisions = 1;
+				sphere.position.set(GAME.g_groupShip.position.x -35, GAME.g_groupShip.position.y + 25,GAME.g_groupShip.position.z -i*20);
+	
+				var sphere2 = new Physijs.BoxMesh(
+							geometry,
+							material
+						);
+				sphere2.collisions = 1;
+				sphere2.position.set(GAME.g_groupShip.position.x + 35, GAME.g_groupShip.position.y + 25, GAME.g_groupShip.position.z -i*20);
+	
+				demo.g_scene.add(sphere );
+				demo.g_scene.add(sphere2);
+			}
+        }
+		
 		this.g_events.on('fire', function (data) {
            eventHandler('fire', data);
         });
@@ -432,7 +466,7 @@ var GAME =
         });
         
         this.g_events.on('right', function (data) {
-           eventHandler('rigth', data);
+           eventHandler('right', data);
         });
         
         this.g_events.on('left', function (data) {

@@ -1,27 +1,21 @@
 var GAME =
 {
-	g_renderer : null,
-	g_camera : null,
-	g_scene : null,
-	g_controls : null,
-	g_ocean : null,
+	g_renderer: null,
+	g_camera: null,
+	g_scene: null,
+	g_controls: null,
+	g_ocean: null,
+	
+	g_blackPearls: new Map(),
+	g_groupShips: new Map(),
+	g_blackPearlShips: new Map(),
+	g_commands: new Map(),
+	g_captains: new Map(),
+	
 	g_events: null,
-
-	g_commands : {
-		states : {
-			up : false,
-			right : false,
-			down : false,
-			left : false
-		},
-		movements : {
-			speed : 0.0,
-			angle : 0.0
-		}
-	},
 	
 	Initialize: function() {
-	    //this.g_events = io.connect('http://localhost/');
+	    this.g_events = io.connect('https://sealord-dshybeka.c9users.io');
 	    
 	    this.g_renderer = new THREE.WebGLRenderer();
 		this.g_renderer.context.getExtension( 'OES_texture_float' );
@@ -32,16 +26,10 @@ var GAME =
 
 		this.g_scene = new THREE.Scene();
 		
-		this.g_groupShip = new THREE.Object3D();
-		this.g_blackPearlShip = new THREE.Object3D();
-		this.g_scene.add( this.g_groupShip );
-		this.g_scene.updateMatrixWorld(true);
-		this.g_groupShip.add( this.g_blackPearlShip );
-		
 		this.g_camera = new THREE.PerspectiveCamera( 55.0, WINDOW.ms_Width / WINDOW.ms_Height, 0.5, 1000000 );
 		this.g_camera.position.set( 0, 350, 800 );
 		this.g_camera.lookAt( new THREE.Vector3() );
-		this.g_blackPearlShip.add( this.g_camera );
+		this.g_scene.add( this.g_camera );
 		
 		this.g_controls = new THREE.OrbitControls( this.g_camera, this.g_renderer.domElement );
 		this.g_controls.userPan = false;
@@ -55,6 +43,47 @@ var GAME =
 		
 		this.InitializeLoader();
 		this.InitializeScene();
+		
+		this.g_events.on("login", function(data) {
+			console.log("new user joined:" + data.username);
+			
+					
+			var g_groupShip = new THREE.Object3D();
+			var g_blackPearlShip = new THREE.Object3D();
+			GAME.g_scene.add(g_groupShip );
+			g_groupShip.add(g_blackPearlShip );
+		
+			GAME.g_groupShips.set(data.username, g_groupShip);
+			GAME.g_blackPearlShips.set(data.username, g_blackPearlShip);
+			GAME.g_commands.set(data.username, {
+				states : {
+					up : false,
+					right : false,
+					down : false,
+					left : false
+				},
+				movements : {
+					speed : 0.0,
+					angle : 0.0
+				}
+			});
+		
+			var loader = new THREE.OBJMTLLoader( GAME.g_loader );
+			var g_blackPearl = null;
+			loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl.mtl', function ( object ) {
+				object.position.y = 20.0;
+				if( object.children ) {
+					for( child in object.children ) {
+						object.children[child].material.side = THREE.DoubleSide;
+					}
+				}
+
+			GAME.g_blackPearlShips.get(data.username).add( object );
+			GAME.g_blackPearls.set(data.username, object);
+			GAME.g_captains.set(data.us)
+		 });
+		});
+
 		
 		this.InitCommands();
 	},
@@ -87,21 +116,6 @@ var GAME =
 		this.g_mainDirectionalLight = new THREE.DirectionalLight( 0xffffff, 1.5 );
 		this.g_mainDirectionalLight.position.set( -0.2, 0.5, 1 );
 		this.g_scene.add( this.g_mainDirectionalLight );
-
-		var loader = new THREE.OBJMTLLoader( this.g_loader );
-		this.g_blackPearl = null;
-		loader.load( '../server/third-party/models/BlackPearl/BlackPearl.obj', '../server/third-party/models/BlackPearl/BlackPearl.mtl', function ( object ) {
-			object.position.y = 20.0;
-			if( object.children ) {
-				for( child in object.children ) {
-					object.children[child].material.side = THREE.DoubleSide;
-				}
-			}
-
-			GAME.g_blackPearlShip.add( object );
-			GAME.g_blackPearl = object;
-		} );
-		
 		
 		this.g_cloudShader = new CloudShader( this.ms_Renderer, 512 );
 		this.g_cloudShader.cloudMesh.scale.multiplyScalar( 4.0 );
@@ -273,36 +287,44 @@ var GAME =
 			this.g_camera.position.y = 2.0;
 		}
 
-		// Update black ship displacements
-		this.UpdateCommands();
-		this.g_groupShip.rotation.y += this.g_commands.movements.angle;
-		this.g_blackPearlShip.rotation.z = -this.g_commands.movements.angle * 10.0;
-		this.g_blackPearlShip.rotation.x = this.g_commands.movements.speed * 0.1;
-		var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShip.rotation).multiplyScalar( 10.0 * this.g_commands.movements.speed );
-		this.g_groupShip.position.add( shipDisplacement );
 
-		var currentTime = new Date().getTime();
+				var currentTime = new Date().getTime();
+		
+		for (var [username, value] of this.g_groupShips) {
+			this.UpdateCommands(username);
+			this.g_groupShips.get(username).rotation.y += this.g_commands.get(username).movements.angle;
+			this.g_blackPearlShips.get(username).rotation.z = -this.g_commands.get(username).movements.angle * 10.0;
+			this.g_blackPearlShips.get(username).rotation.x = this.g_commands.get(username).movements.speed * 0.1;
+			var shipDisplacement = (new THREE.Vector3(0, 0, -1)).applyEuler(this.g_groupShips.get(username).rotation).multiplyScalar( 10.0 * this.g_commands.get(username).movements.speed );
+			this.g_groupShips.get(username).position.add( shipDisplacement );
+			
+			if( this.g_blackPearls.get(username))
+				{
+				var animationRatio = 1.0 + this.g_commands.get(username).movements.speed * 1.0;
+				this.g_blackPearls.get(username).rotation.y = Math.cos( currentTime * 0.0008 ) * 0.05 - 0.025;
+				this.g_blackPearls.get(username).rotation.x = Math.sin( currentTime * 0.001154 + 0.78 ) * 0.1 + 0.05;
+			}
+			
+			this.g_controls.update();
+		}
+
+
+
 		this.g_ocean.deltaTime = ( currentTime - lastTime ) / 1000 || 0.0;
 		lastTime = currentTime;
 
-		// Update black ship movements
-		if( this.g_blackPearl !== null )
-		{
-			var animationRatio = 1.0 + this.g_commands.movements.speed * 1.0;
-			this.g_blackPearl.rotation.y = Math.cos( currentTime * 0.0008 ) * 0.05 - 0.025;
-			this.g_blackPearl.rotation.x = Math.sin( currentTime * 0.001154 + 0.78 ) * 0.1 + 0.05;
-		}
+
 
 		// Render ocean reflection
-		// this.g_ocean.render();
+		this.g_ocean.render();
 
 		// Updade clouds
-		// this.g_cloudShader.update();
+		this.g_cloudShader.update();
 
 		// Update ocean data
-		// this.g_ocean.update();
+		this.g_ocean.update();
 		
-		this.g_controls.update();
+
 		this.Display();
 
 	},
@@ -322,9 +344,9 @@ var GAME =
 
 	},
 	
-		UpdateCommands : function UpdateCommands() {
+		UpdateCommands : function UpdateCommands(username) {
 
-		var states = this.g_commands.states;
+		var states = this.g_commands.get(username).states;
 
 		// Update speed
 		var targetSpeed = 0.0;
@@ -334,8 +356,8 @@ var GAME =
 		else if( states.down ) {
 			targetSpeed = -0.5;
 		}
-		var curSpeed = this.g_commands.movements.speed ;
-		this.g_commands.movements.speed = curSpeed + ( targetSpeed - curSpeed ) * 0.02;
+		var curSpeed = this.g_commands.get(username).movements.speed ;
+		this.g_commands.get(username).movements.speed = curSpeed + ( targetSpeed - curSpeed ) * 0.02;
 
 		// Update angle
 		var targetAngle = 0.0;
@@ -349,11 +371,8 @@ var GAME =
 			targetAngle *= -1.0;
 		}
 		
-		var curAngle = this.g_commands.movements.angle ;
-		this.g_commands.movements.angle = curAngle + ( targetAngle - curAngle ) * 0.02;
-
-	},
-	createYards: function createYards() {
+		var curAngle = this.g_commands.get(username).movements.angle ;
+		this.g_commands.get(username).movements.angle = curAngle + ( targetAngle - curAngle ) * 0.02;
 
 	},
 		InitCommands : function InitCommands() {
@@ -363,70 +382,102 @@ var GAME =
 			RIGHT = 39,
 			DOWN = 40;
 
-		var keyHandler = function keyHandler( action ) {
+		var keyHandler = function keyHandler( action, data ) {
 			return function( event ) {
 				var key = event.which;
 				if( key >= LEFT && key <= DOWN ) {
 					switch( key ) {
-						case UP : GAME.g_commands.states.up = action ; break ;
-						case RIGHT : GAME.g_commands.states.right = action ; break ;
-						case DOWN : (function() {
-
-	Physijs.scripts.worker = 'physijs_worker.js';
-	Physijs.scripts.ammo = 'ammo.js';
-				
-
-		GAME.yards = [];
-		var demo = GAME;
-
-		var geometry = new THREE.SphereGeometry( 5, 32, 32 );
-		var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
-		var yardGeom = new THREE.SphereGeometry( 5, 40, 40 )
-
-		for (var i = 1; i <= 4; i++) {
-
-			var sphere = new Physijs.BoxMesh(
-						geometry,
-						material
-					);
-			sphere.collisions = 1;
-			sphere.position.set(GAME.g_groupShip.x - 35, GAME.g_groupShip.y + 25, (GAME.g_groupShip.z -i)*20);
-
-			console.log("this.g_blackPearlShip ", GAME.g_groupShip);
-
-			// var sphere2 = new Physijs.BoxMesh(
-			// 			geometry,
-			// 			material
-			// 		);
-			// sphere2.collisions = 1;
-			// sphere.position.set(GAME.g_groupShip.x + 35, GAME.g_groupShip.y + 25, GAME.g_groupShip.z -i*20);
-
-			demo.g_scene.add(sphere );
-			// demo.g_scene.add(sphere2 );
-		}
-
-				}()) ; break ;
-						case LEFT : GAME.g_commands.states.left = action ; break ;
+						case UP : GAME.g_commands.get(data.username).states.up = action ; break ;
+						case RIGHT : GAME.g_commands.get(data.username).states.right = action ; break ;
+						case DOWN : handleFire() ; break ;
+						case LEFT : GAME.g_commands.get(data.username).states.left = action ; break ;
 					}
 				}
 			}
 		}
 		
-		var eventHandler = function eventHandler( action ) {
+		var eventHandler = function eventHandler( action, data ) {
 					switch( action ) {
-						case 'speed up' : GAME.g_commands.states.up = action ; break ;
-						case RIGHT : GAME.g_commands.states.right = action ; break ;
-						case 'speed down' : GAME.g_commands.states.down = action ; break ;
-						case LEFT : GAME.g_commands.states.left = action ; break ;
+						case 'speed up' : GAME.g_commands.get(data.username).states.up = true ; break ;
+						case 'right' : {
+							GAME.g_commands.get(data.username).states.right = true;
+							GAME.g_commands.get(data.username).states.left = false;
+							break ;
+						}
+						case 'speed down' : GAME.g_commands.get(data.username).states.up = false ; break ;
+						case 'left' : {
+							GAME.g_commands.get(data.username).states.left = true;
+							GAME.g_commands.get(data.username).states.right = false;
+							break;
+						}
+						case 'center': {
+							GAME.g_commands.get(data.username).states.left = false;
+							GAME.g_commands.get(data.username).states.right = false;
+							break;
+						}
+							
 					}
 		}
 		
-		//this.g_events.on('connect', function () {
-        //    g_events.emit('hi!');
-        //});
+		var handleFire = function () {
+        	
+        	Physijs.scripts.worker = 'physijs_worker.js';
+			Physijs.scripts.ammo = 'ammo.js';
+						
+		
+			GAME.yards = [];
+			var demo = GAME;
+	
+			var geometry = new THREE.SphereGeometry( 5, 32, 32 );
+			var material = new THREE.MeshBasicMaterial( {color: 0xffff00} );
+			var yardGeom = new THREE.SphereGeometry( 5, 40, 40 )
+	
+			for (var i = 1; i <= 4; i++) {
+	
+				var sphere = new Physijs.BoxMesh(
+							geometry,
+							material
+						);
+				sphere.collisions = 1;
+				sphere.position.set(GAME.g_groupShip.position.x -35, GAME.g_groupShip.position.y + 25,GAME.g_groupShip.position.z -i*20);
+	
+				var sphere2 = new Physijs.BoxMesh(
+							geometry,
+							material
+						);
+				sphere2.collisions = 1;
+				sphere2.position.set(GAME.g_groupShip.position.x + 35, GAME.g_groupShip.position.y + 25, GAME.g_groupShip.position.z -i*20);
+	
+				demo.g_scene.add(sphere );
+				demo.g_scene.add(sphere2);
+			}
+        }
+		
+		this.g_events.on('fire', function (data) {
+           eventHandler('fire', data);
+        });
+		
+		this.g_events.on('speed up', function (data) {
+           eventHandler('speed up', data);
+        });
+        
+        this.g_events.on('speed down', function (data) {
+           eventHandler('speed down', data);
+        });
+        
+        this.g_events.on('right', function (data) {
+           eventHandler('right', data);
+        });
+        
+        this.g_events.on('left', function (data) {
+           eventHandler('left', data);
+        });
+        this.g_events.on('center', function (data) {
+           eventHandler('center', data);
+        });
 
 		$( document ).keydown( keyHandler( true ) );
 		$( document ).keyup( keyHandler( false ) );
-
-	},
+		
+	}
 }

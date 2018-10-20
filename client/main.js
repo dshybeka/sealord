@@ -56,6 +56,8 @@ app.controller('basicController', function($scope) {
        socket.close();
         client.stop();
        $scope.fightStarted = false;
+       
+       socket.emit('logout', {'username': username});
    };
    
    $scope.allowFight= function(){
@@ -64,20 +66,18 @@ app.controller('basicController', function($scope) {
        && $scope.shiptype != null;
    };
 
-    gyro.frequency = 5;
+    gyro.frequency = 500;
     gyro.startTracking(function (o) {
         
         $("#wheel").css('transform', 'rotate('+ o.y * 10 +'deg)');
 
         if (o.y < -1.5) {
             socket.emit('left', {'username': username, diff: Math.abs(o.y)});
-            $("#left").text("Left" + Math.abs(o.y));
             
         }
 
         if (o.y > 1.5) {
             socket.emit('right', {'username': username, diff: Math.abs(o.y)});
-            $("#right").text("Right" + Math.abs(o.y));
         }
 
         if (o.y < 1.5 & o.y > -1.5) {
